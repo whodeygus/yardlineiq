@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - YardLineIQ</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: white;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: rgba(10, 10, 10, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .admin-badge {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #00ff88;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .panel-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+        }
+
+        .panel-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #00ff88;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            color: white;
+            font-size: 0.95rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #00ff88;
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            color: #000;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 1rem;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .user-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-info {
+            flex-grow: 1;
+        }
+
+        .user-email {
+            font-weight: 600;
+            color: white;
+        }
+
+        .user-subscription {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+        }
+
+        .success-message, .error-message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        .success-message {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+        }
+
+        .error-message {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            color: #ff6b6b;
+        }
+
+        @media (max-width: 968px) {
+            .admin-grid { grid-template-columns: 1fr; }
+            .main-content { padding: 1rem; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">YARDLINEIQ ADMIN</div>
+            <div class="admin-badge">ADMIN ACCESS</div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalUsers">0</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="paidUsers">0</div>
+                <div class="stat-label">Paid Subscribers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalPicks">0</div>
+                <div class="stat-label">Total Picks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="winRate">61%</div>
+                <div class="stat-label">Overall Win Rate</div>
+            </div>
+        </div>
+
+        <div class="admin-grid">
+            <div class="panel-card">
+                <h2 class="panel-title">Post New Pick</h2>
+                <div class="success-message" id="pickSuccess"></div>
+                <div class="error-message" id="pickError"></div>
+                
+                <form id="pickForm">
+                    <div class="form-group">
+                        <label class="form-label">Week</label>
+                        <input type="number" class="form-input" name="week" min="1" max="22" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Game</label>
+                        <input type="text" class="form-input" name="game" placeholder="Chiefs vs Patriots" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Pick</label>
+                        <input type="text" class="form-input" name="pick" placeholder="Chiefs -3.5" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Confidence Level</label>
+                        <select class="form-select" name="confidence" required>
+                            <option value="">Select Confidence</option>
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                            <option value="Lock">Lock</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Pick Type</label>
+                        <select class="form-select" name="pickType" required>
+                            <option value="">Select Type</option>
+                            <option value="free">Free Pick</option>
+                            <option value="premium">Premium Pick</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Game Time</label>
+                        <input type="datetime-local" class="form-input" name="gameTime" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Analysis (Optional)</label>
+                        <textarea class="form-textarea" name="analysis" placeholder="Brief analysis of the pick..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">Post Pick</button>
+                </form>
+            </div>
+
+            <div class="panel-card">
+                <h2 class="panel-title">User Management</h2>
+                <div class="form-group">
+                    <button class="btn-secondary" onclick="loadUsers()">Refresh Users</button>
+                    <button class="btn-secondary" onclick="exportUsers()">Export Data</button>
+                </div>
+                
+                <div class="user-list" id="userList">
+                    <div style="text-align: center; padding: 2rem; color: rgba(255,255,255,0.5);">
+                        Click "Refresh Users" to load user data
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Simple admin authentication
+        const adminPassword = prompt('Enter admin password:');
+        if (adminPassword !== 'YardLineIQ2024!') {
+            alert('Access denied');
+            window.location.href = '/';
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/admin/stats');
+                const stats = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('totalUsers').textContent = stats.totalUsers || 0;
+                    document.getElementById('paidUsers').textContent = stats.paidUsers || 0;
+                    document.getElementById('totalPicks').textContent = stats.totalPicks || 0;
+                    document.getElementById('winRate').textContent = stats.winRate || '61%';
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        document.getElementById('pickForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const pickData = Object.fromEntries(formData);
+            
+            const successMsg = document.getElementById('pickSuccess');
+            const errorMsg = document.getElementById('pickError');
+            
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/admin/create-pick', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(pickData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    successMsg.textContent = 'Pick posted successfully!';
+                    successMsg.style.display = 'block';
+                    e.target.reset();
+                } else {
+                    errorMsg.textContent = result.error || 'Failed to post pick';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (error) {
+                errorMsg.textContent = 'Network error. Please try again.';
+                errorMsg.style.display = 'block';
+            }
+        });
+
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/admin/users');
+                const users = await response.json();
+                
+                const userList = document.getElementById('userList');
+                
+                if (response.ok && users.length > 0) {
+                    userList.innerHTML = users.map(user => `
+                        <div class="user-item">
+                            <div class="user-info">
+                                <div class="user-email">${user.email}</div>
+                                <div class="user-subscription">${user.subscription} - Joined ${new Date(user.createdAt).toLocaleDateString()}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    userList.innerHTML = '<div style="text-align: center; padding: 2rem; color: rgba(255,255,255,0.5);">No users found</div>';
+                }
+            } catch (error) {
+                document.getElementById('userList').innerHTML = '<div style="text-align: center; padding: 2rem; color: #ff6b6b;">Error loading users</div>';
+            }
+        }
+
+        function exportUsers() {
+            alert('Export functionality would generate a CSV file with user data');
+        }
+
+        loadStats();
+    </script>
+</body>
+</html>
