@@ -18,6 +18,17 @@ const limiter = rateLimit({
 app.use(cors());
 app.use(express.json());
 app.use(limiter);
+// Serve static files from public directory
+app.use(express.static('public'));
+
+// Specific routes for HTML pages
+app.get('/privacy-policy.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'privacy-policy.html'));
+});
+
+app.get('/login.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
 app.use(express.static('public'));
 
 // MongoDB Connection
@@ -52,4 +63,5 @@ app.get('/admin', (req, res) => {
 app.listen(PORT, () => {
     console.log(`🚀 YardLineIQ Server running on port ${PORT}`);
     console.log(`🌐 Visit: http://localhost:${PORT}`);
+
 });
