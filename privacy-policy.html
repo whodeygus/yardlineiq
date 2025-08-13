@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy | YardLineIQ</title>
+    <title>Member Login | YardLineIQ</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
         
@@ -17,18 +17,19 @@
             font-family: 'Inter', sans-serif;
             background: #0a0a0a;
             color: white;
-            line-height: 1.6;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: radial-gradient(ellipse at top, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+                        radial-gradient(ellipse at bottom right, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                        #0a0a0a;
         }
 
         .header {
             background: rgba(10, 10, 10, 0.95);
             backdrop-filter: blur(20px);
             padding: 1rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .nav-container {
@@ -43,6 +44,7 @@
         .logo {
             font-size: 1.8rem;
             font-weight: 800;
+            letter-spacing: -0.02em;
             background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -59,6 +61,9 @@
             text-decoration: none;
             font-weight: 500;
             transition: all 0.3s ease;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
         }
 
         .back-btn:hover {
@@ -67,90 +72,182 @@
             color: #00ff88;
         }
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 4rem 2rem;
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
         }
 
-        .page-title {
-            font-size: 3rem;
+        .login-container {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 3rem;
+            max-width: 450px;
+            width: 100%;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-title {
+            font-size: 2rem;
             font-weight: 900;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            text-align: center;
         }
 
-        .last-updated {
-            text-align: center;
+        .login-subtitle {
             color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 3rem;
-            font-size: 1rem;
+            font-size: 0.95rem;
         }
 
-        .content {
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 3rem;
-            backdrop-filter: blur(20px);
-        }
-
-        h2 {
-            color: #00ff88;
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin: 2rem 0 1rem 0;
-            border-bottom: 2px solid rgba(0, 255, 136, 0.3);
-            padding-bottom: 0.5rem;
-        }
-
-        h2:first-child {
-            margin-top: 0;
-        }
-
-        h3 {
-            color: #00ccff;
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin: 1.5rem 0 0.75rem 0;
-        }
-
-        p {
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white;
             font-size: 1rem;
+            transition: all 0.3s ease;
+            min-height: 56px;
+            font-family: 'Inter', sans-serif;
         }
 
-        ul {
-            margin: 1rem 0 1rem 2rem;
-            color: rgba(255, 255, 255, 0.8);
+        .form-input:focus {
+            outline: none;
+            border-color: #00ff88;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.1);
         }
 
-        li {
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            color: #000;
+            border: none;
+            padding: 1.2rem 2rem;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 56px;
+            font-family: 'Inter', sans-serif;
+            margin-bottom: 1rem;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            color: #ff6b6b;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+            font-size: 0.9rem;
+        }
+
+        .success-message {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+            font-size: 0.9rem;
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .form-footer p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
             margin-bottom: 0.5rem;
         }
 
-        .contact-info {
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin: 2rem 0;
+        .support-link {
+            color: #00ff88;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
         }
 
-        .contact-info h3 {
-            color: #00ff88;
-            margin-top: 0;
+        .support-link:hover {
+            color: #00ccff;
+        }
+
+        .loading {
+            position: relative;
+            color: transparent !important;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid #000;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
         .footer {
             background: rgba(0, 0, 0, 0.5);
             border-top: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 2rem;
+            padding: 2rem 3rem;
             text-align: center;
             color: rgba(255, 255, 255, 0.4);
             font-size: 0.9rem;
@@ -161,16 +258,17 @@
                 padding: 0 1.5rem;
             }
             
-            .container {
-                padding: 2rem 1rem;
+            .main-content {
+                padding: 1rem;
             }
             
-            .content {
+            .login-container {
                 padding: 2rem 1.5rem;
+                margin: 1rem;
             }
             
-            .page-title {
-                font-size: 2rem;
+            .login-title {
+                font-size: 1.5rem;
             }
         }
     </style>
@@ -183,149 +281,113 @@
         </nav>
     </header>
 
-    <div class="container">
-        <h1 class="page-title">Privacy Policy</h1>
-        <p class="last-updated">Last Updated: August 12, 2025</p>
-        
-        <div class="content">
-            <h2>1. Information We Collect</h2>
-            
-            <h3>Personal Information</h3>
-            <p>When you use YardLineIQ, we may collect the following personal information:</p>
-            <ul>
-                <li>Email address (for account creation and NFL picks delivery)</li>
-                <li>Name (for personalized service)</li>
-                <li>Payment information (processed securely through Stripe)</li>
-                <li>Communication preferences</li>
-            </ul>
-
-            <h3>Automatically Collected Information</h3>
-            <p>We automatically collect certain information when you visit our website:</p>
-            <ul>
-                <li>IP address and location data</li>
-                <li>Browser type and version</li>
-                <li>Device information</li>
-                <li>Pages visited and time spent on our site</li>
-                <li>Referral source</li>
-            </ul>
-
-            <h2>2. How We Use Your Information</h2>
-            <p>We use your information to:</p>
-            <ul>
-                <li>Deliver NFL picks and predictions to subscribers</li>
-                <li>Process payments and manage subscriptions</li>
-                <li>Send service-related communications</li>
-                <li>Improve our website and services</li>
-                <li>Provide customer support</li>
-                <li>Comply with legal obligations</li>
-            </ul>
-
-            <h2>3. Information Sharing and Disclosure</h2>
-            <p>We do not sell, trade, or otherwise transfer your personal information to third parties, except:</p>
-            <ul>
-                <li><strong>Service Providers:</strong> We work with trusted third-party services including Stripe (payment processing), email service providers, and analytics services</li>
-                <li><strong>Legal Requirements:</strong> When required by law, court order, or government regulations</li>
-                <li><strong>Business Transfers:</strong> In connection with any merger, sale, or transfer of our business</li>
-            </ul>
-
-            <h2>4. Cookies and Tracking Technologies</h2>
-            
-            <h3>Cookies We Use</h3>
-            <p>Our website uses cookies and similar tracking technologies to:</p>
-            <ul>
-                <li>Remember your preferences and login status</li>
-                <li>Analyze website traffic and user behavior</li>
-                <li>Provide personalized content and advertisements</li>
-                <li>Improve website functionality</li>
-            </ul>
-
-            <h3>Third-Party Cookies</h3>
-            <p>We use third-party services that may place cookies on your device:</p>
-            <ul>
-                <li><strong>Google Analytics:</strong> For website analytics and performance monitoring</li>
-                <li><strong>Google AdSense:</strong> For displaying relevant advertisements</li>
-                <li><strong>Stripe:</strong> For secure payment processing</li>
-            </ul>
-
-            <h3>Managing Cookies</h3>
-            <p>You can control cookies through your browser settings. However, disabling cookies may limit your ability to use certain features of our website.</p>
-
-            <h2>5. Google AdSense and Advertising</h2>
-            <p>We use Google AdSense to display advertisements on our website. Google may use cookies and other tracking technologies to:</p>
-            <ul>
-                <li>Show you relevant ads based on your interests</li>
-                <li>Measure ad performance</li>
-                <li>Limit the number of times you see specific ads</li>
-            </ul>
-            <p>You can opt out of personalized advertising by visiting <a href="https://www.google.com/settings/ads" style="color: #00ff88;">Google's Ad Settings</a> or by visiting <a href="http://www.aboutads.info" style="color: #00ff88;">www.aboutads.info</a>.</p>
-
-            <h2>6. Data Security</h2>
-            <p>We implement appropriate security measures to protect your personal information:</p>
-            <ul>
-                <li>SSL encryption for data transmission</li>
-                <li>Secure payment processing through Stripe</li>
-                <li>Regular security updates and monitoring</li>
-                <li>Limited access to personal information</li>
-            </ul>
-
-            <h2>7. Data Retention</h2>
-            <p>We retain your personal information for as long as necessary to:</p>
-            <ul>
-                <li>Provide our services to you</li>
-                <li>Comply with legal obligations</li>
-                <li>Resolve disputes and enforce agreements</li>
-            </ul>
-
-            <h2>8. Your Rights and Choices</h2>
-            <p>You have the following rights regarding your personal information:</p>
-            <ul>
-                <li><strong>Access:</strong> Request information about the data we have collected</li>
-                <li><strong>Correction:</strong> Request correction of inaccurate information</li>
-                <li><strong>Deletion:</strong> Request deletion of your personal information</li>
-                <li><strong>Opt-out:</strong> Unsubscribe from marketing communications</li>
-                <li><strong>Data Portability:</strong> Request a copy of your data in a portable format</li>
-            </ul>
-
-            <h2>9. Children's Privacy</h2>
-            <p>Our services are not intended for individuals under 21 years of age. We do not knowingly collect personal information from minors. Sports betting requires users to be 21+ years old.</p>
-
-            <h2>10. International Users</h2>
-            <p>Our website is operated from the United States. If you are accessing our site from outside the US, please note that your information may be transferred to and processed in the United States.</p>
-
-            <h2>11. Changes to This Privacy Policy</h2>
-            <p>We may update this Privacy Policy from time to time. We will notify you of any material changes by:</p>
-            <ul>
-                <li>Posting the updated policy on our website</li>
-                <li>Sending email notifications to subscribers</li>
-                <li>Updating the "Last Updated" date</li>
-            </ul>
-
-            <h2>12. California Privacy Rights (CCPA)</h2>
-            <p>If you are a California resident, you have additional rights under the California Consumer Privacy Act:</p>
-            <ul>
-                <li>Right to know what personal information is collected</li>
-                <li>Right to delete personal information</li>
-                <li>Right to opt-out of the sale of personal information</li>
-                <li>Right to non-discrimination for exercising privacy rights</li>
-            </ul>
-
-            <div class="contact-info">
-                <h3>Contact Us</h3>
-                <p>If you have any questions about this Privacy Policy or want to exercise your rights, please contact us:</p>
-                <p>
-                    <strong>Email:</strong> info@yardlineiq.com<br>
-                    <strong>Website:</strong> www.yardlineiq.com
-                </p>
-                <p>We will respond to your request within 30 days.</p>
+    <div class="main-content">
+        <div class="login-container">
+            <div class="login-header">
+                <h1 class="login-title">Welcome Back</h1>
+                <p class="login-subtitle">Access your premium NFL picks</p>
             </div>
-
-            <h2>13. Consent</h2>
-            <p>By using our website and services, you consent to the collection and use of your information as described in this Privacy Policy. If you do not agree with this policy, please do not use our services.</p>
+            
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-input" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required>
+                </div>
+                
+                <button type="submit" class="login-btn" id="loginButton">
+                    <span id="buttonText">Access My NFL Picks</span>
+                </button>
+            </form>
+            
+            <div class="form-footer">
+                <p>Need help accessing your account?</p>
+                <a href="mailto:admin@yardlineiq.com" class="support-link">Contact Support</a>
+            </div>
         </div>
     </div>
 
     <footer class="footer">
-        <p>&copy; 2024 YardLineIQ. All rights reserved. | <a href="/privacy-policy" style="color: inherit;">Privacy Policy</a> | <a href="mailto:info@yardlineiq.com" style="color: inherit;">Contact</a></p>
+        <p>&copy; 2024 YardLineIQ. All rights reserved. | Bet responsibly. Must be 21+. | <a href="/privacy-policy.html" style="color: inherit;">Privacy Policy</a> | <a href="mailto:info@yardlineiq.com" style="color: inherit;">Contact</a></p>
     </footer>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const button = document.getElementById('loginButton');
+            const buttonText = document.getElementById('buttonText');
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            
+            // Hide previous messages
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+            
+            // Show loading state
+            button.disabled = true;
+            button.classList.add('loading');
+            buttonText.textContent = 'Logging in...';
+            
+            // Since you're doing manual login management, this is a placeholder
+            // You'll replace this with your actual login system
+            setTimeout(() => {
+                // For now, show a message that this is manual
+                errorMessage.textContent = 'Manual login system - please contact support with your credentials.';
+                errorMessage.style.display = 'block';
+                
+                // Reset button
+                button.disabled = false;
+                button.classList.remove('loading');
+                buttonText.textContent = 'Access My NFL Picks';
+            }, 1500);
+            
+            // When you set up your actual login system, replace the setTimeout above with:
+            /*
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    successMessage.textContent = 'Login successful! Redirecting to your picks...';
+                    successMessage.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1500);
+                } else {
+                    errorMessage.textContent = data.error || 'Invalid email or password. Please try again.';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                errorMessage.textContent = 'Connection error. Please check your internet and try again.';
+                errorMessage.style.display = 'block';
+            }
+            
+            button.disabled = false;
+            button.classList.remove('loading');
+            buttonText.textContent = 'Access My NFL Picks';
+            */
+        });
+
+        // Auto-focus email field
+        document.getElementById('email').focus();
+    </script>
 </body>
 </html>
