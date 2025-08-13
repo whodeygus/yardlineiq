@@ -19,38 +19,96 @@
             color: white;
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
+            background: radial-gradient(ellipse at top, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+                        radial-gradient(ellipse at bottom right, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                        #0a0a0a;
+        }
+
+        .header {
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 3rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
             align-items: center;
             justify-content: center;
             padding: 2rem;
         }
 
         .login-container {
-            background: rgba(255, 255, 255, 0.08);  /* More visible */
-            border: 2px solid rgba(0, 255, 136, 0.3);  /* Green border */
-            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
             padding: 3rem;
-            max-width: 400px;
+            max-width: 450px;
             width: 100%;
             backdrop-filter: blur(20px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
         }
 
-        .logo {
+        .login-header {
             text-align: center;
-            font-size: 2rem;
-            font-weight: 800;
             margin-bottom: 2rem;
+        }
+
+        .login-title {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
             background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        .form-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            text-align: center;
+        .login-subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.95rem;
         }
 
         .form-group {
@@ -62,29 +120,31 @@
             margin-bottom: 0.5rem;
             font-weight: 500;
             color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
         }
 
         .form-input {
             width: 100%;
             padding: 1rem 1.5rem;
-            background: rgba(255, 255, 255, 0.15);  /* Much more visible */
-            border: 2px solid rgba(255, 255, 255, 0.3);  /* Visible border */
-            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
             color: white;
             font-size: 1rem;
             transition: all 0.3s ease;
             min-height: 56px;
+            font-family: 'Inter', sans-serif;
         }
 
         .form-input:focus {
             outline: none;
             border-color: #00ff88;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.08);
             box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.1);
         }
 
         .form-input::placeholder {
-            color: rgba(255, 255, 255, 0.6);
+            color: rgba(255, 255, 255, 0.4);
         }
 
         .login-btn {
@@ -95,10 +155,12 @@
             padding: 1.2rem 2rem;
             font-size: 1rem;
             font-weight: 700;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
             min-height: 56px;
+            font-family: 'Inter', sans-serif;
+            margin-bottom: 1rem;
         }
 
         .login-btn:hover {
@@ -113,42 +175,54 @@
         }
 
         .error-message {
-            background: rgba(255, 107, 107, 0.2);
-            border: 1px solid rgba(255, 107, 107, 0.5);
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
             color: #ff6b6b;
             padding: 1rem;
             border-radius: 8px;
             margin-bottom: 1rem;
             display: none;
+            font-size: 0.9rem;
         }
 
         .success-message {
-            background: rgba(0, 255, 136, 0.2);
-            border: 1px solid rgba(0, 255, 136, 0.5);
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
             color: #00ff88;
             padding: 1rem;
             border-radius: 8px;
             margin-bottom: 1rem;
             display: none;
+            font-size: 0.9rem;
         }
 
-        .back-link {
+        .form-footer {
             text-align: center;
             margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .back-link a {
-            color: rgba(255, 255, 255, 0.6);
+        .form-footer p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .support-link {
+            color: #00ff88;
             text-decoration: none;
+            font-weight: 500;
             transition: color 0.3s ease;
         }
 
-        .back-link a:hover {
-            color: #00ff88;
+        .support-link:hover {
+            color: #00ccff;
         }
 
         .loading {
             position: relative;
+            color: transparent !important;
         }
 
         .loading::after {
@@ -170,47 +244,79 @@
             100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
-        @media (max-width: 480px) {
+        .footer {
+            background: rgba(0, 0, 0, 0.5);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 2rem 3rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 1.5rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
             .login-container {
                 padding: 2rem 1.5rem;
                 margin: 1rem;
             }
             
-            .logo {
+            .login-title {
                 font-size: 1.5rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="logo">YARDLINEIQ</div>
-        
-        <div class="error-message" id="errorMessage"></div>
-        <div class="success-message" id="successMessage"></div>
-        
-        <form id="loginForm">
-            <h2 class="form-title">Member Login</h2>
-            
-            <div class="form-group">
-                <label for="email" class="form-label">Email Address</label>
-                <input type="email" id="email" name="email" class="form-input" placeholder="Enter your email" required>
+    <header class="header">
+        <nav class="nav-container">
+            <a href="/" class="logo">YARDLINEIQ</a>
+            <a href="/" class="back-btn">← Back to Home</a>
+        </nav>
+    </header>
+
+    <div class="main-content">
+        <div class="login-container">
+            <div class="login-header">
+                <h1 class="login-title">Welcome Back</h1>
+                <p class="login-subtitle">Access your premium NFL picks</p>
             </div>
             
-            <div class="form-group">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required>
-            </div>
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
             
-            <button type="submit" class="login-btn" id="loginButton">
-                <span id="buttonText">Access My NFL Picks</span>
-            </button>
-        </form>
-        
-        <div class="back-link">
-            <a href="/">← Back to Home</a>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-input" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required>
+                </div>
+                
+                <button type="submit" class="login-btn" id="loginButton">
+                    <span id="buttonText">Access My NFL Picks</span>
+                </button>
+            </form>
+            
+            <div class="form-footer">
+                <p>Need help accessing your account?</p>
+                <a href="mailto:info@yardlineiq.com" class="support-link">Contact Support</a>
+            </div>
         </div>
     </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 YardLineIQ. All rights reserved. | Bet responsibly. Must be 21+. | <a href="/privacy-policy.html" style="color: inherit;">Privacy Policy</a> | <a href="mailto:info@yardlineiq.com" style="color: inherit;">Contact</a></p>
+    </footer>
 
     <script>
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -232,6 +338,21 @@
             button.classList.add('loading');
             buttonText.textContent = 'Logging in...';
             
+            // Since you're doing manual login management, this is a placeholder
+            // You'll replace this with your actual login system
+            setTimeout(() => {
+                // For now, show a message that this is manual
+                errorMessage.textContent = 'Manual login system - please contact support with your credentials.';
+                errorMessage.style.display = 'block';
+                
+                // Reset button
+                button.disabled = false;
+                button.classList.remove('loading');
+                buttonText.textContent = 'Access My NFL Picks';
+            }, 1500);
+            
+            // When you set up your actual login system, replace the setTimeout above with:
+            /*
             try {
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
@@ -247,14 +368,8 @@
                     successMessage.textContent = 'Login successful! Redirecting to your picks...';
                     successMessage.style.display = 'block';
                     
-                    // Store authentication token if provided
-                    if (data.token) {
-                        localStorage.setItem('authToken', data.token);
-                    }
-                    
-                    // Redirect to member dashboard
                     setTimeout(() => {
-                        window.location.href = '/dashboard'; // or wherever members go
+                        window.location.href = '/dashboard';
                     }, 1500);
                 } else {
                     errorMessage.textContent = data.error || 'Invalid email or password. Please try again.';
@@ -265,10 +380,10 @@
                 errorMessage.style.display = 'block';
             }
             
-            // Reset button
             button.disabled = false;
             button.classList.remove('loading');
             buttonText.textContent = 'Access My NFL Picks';
+            */
         });
 
         // Auto-focus email field
