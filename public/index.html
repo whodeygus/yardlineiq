@@ -3,9 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YardLineIQ - Elite NFL Picks & Expert Predictions Against the Spread</title>
-    <meta name="description" content="Professional NFL picks with 61% win rate. Get expert NFL predictions against the spread, NFL betting tips, and winning NFL handicapping from our proven system.">
-    <meta name="keywords" content="NFL picks, NFL predictions, NFL betting tips, NFL expert picks, NFL spread picks, NFL picks against the spread, NFL handicapping, professional NFL picks, best NFL picks, NFL betting advice">
+    <title>Free NFL Picks 2025 | 61% Win Rate Expert Predictions Against the Spread | YardLineIQ</title>
+    <meta name="description" content="Get free NFL picks with proven 61% win rate. Expert NFL predictions against the spread, betting tips, and winning NFL handicapping. Join smart bettors today!">
+    <meta name="keywords" content="free NFL picks, NFL picks 2025, NFL predictions, NFL betting picks, NFL picks against the spread, expert NFL picks, NFL betting tips, NFL handicapping, best NFL picks 2025">
+    
+    <!-- SEO Schema Markup -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "YardLineIQ",
+        "url": "https://www.yardlineiq.com",
+        "description": "Expert NFL picks and predictions with proven 61% win rate. Free NFL picks against the spread.",
+        "logo": "https://www.yardlineiq.com/logo.png",
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "email": "info@yardlineiq.com",
+            "contactType": "customer service"
+        }
+    }
+    </script>
+    
+    <!-- Article Schema for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Free NFL Picks 2025 with 61% Win Rate",
+        "description": "Expert NFL predictions and betting tips from proven analytics system",
+        "author": {
+            "@type": "Organization",
+            "name": "YardLineIQ"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "YardLineIQ"
+        }
+    }
+    </script>
     
     <script src="https://js.stripe.com/v3/"></script>
     
@@ -88,12 +123,29 @@
             text-decoration: none;
             font-weight: 500;
             transition: all 0.3s ease;
+            min-height: 44px;
+            min-width: 44px;
+            display: flex;
+            align-items: center;
         }
 
         .login-btn:hover {
             background: rgba(0, 255, 136, 0.2);
             border-color: #00ff88;
             color: #00ff88;
+        }
+
+        /* Mobile menu button */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 8px;
+            min-height: 44px;
+            min-width: 44px;
         }
 
         .hero {
@@ -117,7 +169,7 @@
         }
 
         .hero-content h1 {
-            font-size: clamp(4rem, 8vw, 8rem);
+            font-size: clamp(3rem, 6vw, 8rem);
             font-weight: 900;
             line-height: 0.9;
             letter-spacing: -0.05em;
@@ -137,7 +189,7 @@
         }
 
         .hero-subtitle {
-            font-size: 1.4rem;
+            font-size: clamp(1.1rem, 2.5vw, 1.4rem);
             color: rgba(255, 255, 255, 0.6);
             margin-bottom: 3rem;
             font-weight: 400;
@@ -147,8 +199,9 @@
 
         .hero-stats {
             display: flex;
-            gap: 3rem;
+            gap: 2rem;
             margin-bottom: 3rem;
+            flex-wrap: wrap;
         }
 
         .stat-item {
@@ -156,7 +209,7 @@
         }
 
         .stat-number {
-            font-size: 3rem;
+            font-size: clamp(2rem, 4vw, 3rem);
             font-weight: 800;
             background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
             -webkit-background-clip: text;
@@ -229,6 +282,7 @@
         .cta-group {
             display: flex;
             gap: 1.5rem;
+            flex-wrap: wrap;
         }
 
         .btn-primary {
@@ -245,6 +299,9 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
+            min-height: 56px;
+            justify-content: center;
+            text-align: center;
         }
 
         .btn-primary:hover {
@@ -263,6 +320,10 @@
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
+            min-height: 56px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .btn-secondary:hover {
@@ -283,7 +344,7 @@
         }
 
         .section-title {
-            font-size: 3rem;
+            font-size: clamp(2rem, 5vw, 3rem);
             font-weight: 900;
             margin-bottom: 1rem;
             background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
@@ -297,6 +358,7 @@
             gap: 1rem;
             max-width: 500px;
             margin: 2rem auto;
+            flex-wrap: wrap;
         }
 
         .email-input {
@@ -309,6 +371,8 @@
             font-size: 1rem;
             outline: none;
             transition: border-color 0.3s ease;
+            min-width: 280px;
+            min-height: 56px;
         }
 
         .email-input:focus {
@@ -335,7 +399,7 @@
         }
 
         .section-subtitle {
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 2vw, 1.2rem);
             color: rgba(255, 255, 255, 0.6);
             font-weight: 400;
         }
@@ -449,6 +513,7 @@
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
+            min-height: 56px;
         }
 
         .plan-button:hover {
@@ -482,7 +547,7 @@
         }
 
         .about-content h2 {
-            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-size: clamp(2rem, 4vw, 4rem);
             font-weight: 900;
             line-height: 1.1;
             margin-bottom: 2rem;
@@ -490,7 +555,7 @@
         }
 
         .about-content p {
-            font-size: 1.1rem;
+            font-size: clamp(1rem, 2vw, 1.1rem);
             color: rgba(255, 255, 255, 0.7);
             line-height: 1.6;
             margin-bottom: 1.5rem;
@@ -567,6 +632,8 @@
             color: rgba(255, 255, 255, 0.5);
             font-size: 1.5rem;
             cursor: pointer;
+            min-height: 44px;
+            min-width: 44px;
         }
 
         #card-element {
@@ -589,6 +656,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             margin-top: 1rem;
+            min-height: 56px;
         }
 
         .payment-button:hover {
@@ -601,6 +669,57 @@
             cursor: not-allowed;
         }
 
+        /* SEO-optimized features section */
+        .features-section {
+            padding: 80px 3rem;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .features-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 255, 136, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .feature-card h3 {
+            color: #00ff88;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .feature-card p {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.5;
+        }
+
+        /* Mobile Responsive Design */
         @media (max-width: 1200px) {
             .hero-grid {
                 grid-template-columns: 1fr;
@@ -627,19 +746,26 @@
                 display: none;
             }
             
-            .hero, .pricing, .about, .free-pick-section {
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .hero, .pricing, .about, .free-pick-section, .features-section {
                 padding-left: 1.5rem;
                 padding-right: 1.5rem;
             }
             
             .hero-stats {
-                flex-wrap: wrap;
-                gap: 2rem;
+                justify-content: center;
+                gap: 1.5rem;
             }
             
             .cta-group {
-                flex-direction: column;
-                align-items: center;
+                justify-content: center;
+            }
+            
+            .btn-primary, .btn-secondary {
+                min-width: 200px;
             }
             
             .pricing-grid {
@@ -652,7 +778,78 @@
 
             .email-signup-form {
                 flex-direction: column;
+                align-items: center;
             }
+
+            .email-input {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                margin: 1rem;
+                width: calc(100% - 2rem);
+                padding: 2rem 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+            
+            .hero-stats {
+                gap: 1rem;
+            }
+            
+            .stat-number {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Focus states for accessibility */
+        .btn-primary:focus,
+        .btn-secondary:focus,
+        .email-input:focus,
+        .plan-button:focus,
+        .login-btn:focus,
+        .mobile-menu-btn:focus {
+            outline: 3px solid #00ff88;
+            outline-offset: 2px;
+        }
+
+        /* Loading states */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+            position: relative;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid #00ff88;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
     </style>
 </head>
@@ -662,11 +859,13 @@
             <div class="logo">YARDLINEIQ</div>
             <ul class="nav-links">
                 <li><a href="#home">Home</a></li>
+                <li><a href="#free-pick">Free Picks</a></li>
                 <li><a href="#pricing">Packages</a></li>
                 <li><a href="#about">About</a></li>
                 <li><a href="mailto:info@yardlineiq.com">Contact</a></li>
-                <li><a href="/login" class="login-btn">Member Login</a></li>
             </ul>
+            <button class="mobile-menu-btn" aria-label="Open mobile menu">☰</button>
+            <a href="/login" class="login-btn">Member Login</a>
         </nav>
     </header>
 
@@ -674,12 +873,12 @@
         <div class="hero-grid">
             <div class="hero-content">
                 <h1>
-                    NFL PICKS
+                    FREE NFL PICKS
                     <span class="highlight">THAT WIN</span>
                 </h1>
                 <p class="hero-subtitle">
-                    Decade-refined predictive models delivering consistent results. 
-                    Join the smart money with analytics that actually work.
+                    Get expert NFL predictions against the spread with our proven 61% win rate. 
+                    Join smart bettors using decade-refined analytics that actually work.
                 </p>
                 
                 <div class="hero-stats">
@@ -692,14 +891,14 @@
                         <div class="stat-label">Years Proven</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-number">500+</div>
-                        <div class="stat-label">Members</div>
+                        <div class="stat-number">FREE</div>
+                        <div class="stat-label">Weekly Pick</div>
                     </div>
                 </div>
 
                 <div class="cta-group">
-                    <button class="btn-primary" onclick="scrollToFreePick()">Get Free Pick</button>
-                    <button class="btn-secondary" onclick="scrollToPricing()">View Packages</button>
+                    <button class="btn-primary" onclick="scrollToFreePick()">🏈 Get Free NFL Pick</button>
+                    <button class="btn-secondary" onclick="scrollToPricing()">View All Packages</button>
                 </div>
             </div>
 
@@ -720,18 +919,59 @@
         </div>
     </section>
 
+    <!-- SEO-optimized features section -->
+    <section class="features-section">
+        <div class="features-container">
+            <h2 class="section-title">Expert NFL Betting Analysis</h2>
+            <p class="section-subtitle">Comprehensive NFL predictions and betting tips for the 2025 season</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">🎯</span>
+                    <h3>NFL Picks Against the Spread</h3>
+                    <p>Weekly ATS picks with detailed analysis and reasoning behind each selection. Our proven system identifies value in NFL spread betting.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">📈</span>
+                    <h3>NFL Betting Trends 2025</h3>
+                    <p>Track the latest NFL betting patterns and capitalize on market inefficiencies with our data-driven trend analysis.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🔮</span>
+                    <h3>NFL Predictions 2025</h3>
+                    <p>Season-long forecasts, NFL futures bets, and playoff predictions backed by 10+ years of analytical refinement.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">⚡</span>
+                    <h3>Expert NFL Handicapping</h3>
+                    <p>Professional NFL handicapping with mathematical edge. Every pick backed by sophisticated algorithms and expert analysis.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🏈</span>
+                    <h3>Best NFL Picks 2025</h3>
+                    <p>Consistently ranked among the best NFL picks services with documented 61% win rate across thousands of selections.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">💰</span>
+                    <h3>NFL Betting Tips</h3>
+                    <p>Learn profitable NFL betting strategies, bankroll management, and long-term winning approaches from our experts.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section class="free-pick-section" id="free-pick">
         <div class="free-pick-container">
-            <h2 class="section-title">GET YOUR FREE PICK</h2>
-            <p class="section-subtitle">Join 500+ smart bettors getting our weekly free expert NFL pick</p>
+            <h2 class="section-title">GET YOUR FREE NFL PICK</h2>
+            <p class="section-subtitle">Join smart bettors getting our weekly free expert NFL prediction against the spread</p>
             
             <form class="email-signup-form" id="freePickForm">
-                <input type="email" class="email-input" placeholder="Enter your email address" required id="freeEmail">
-                <button type="submit" class="btn-primary">Get Free Pick</button>
+                <input type="email" class="email-input" placeholder="Enter your email address" required id="freeEmail" aria-label="Email address for free NFL pick">
+                <button type="submit" class="btn-primary">Get Free NFL Pick</button>
             </form>
             
             <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-top: 1rem;">
-                No spam. Unsubscribe anytime. Get exclusive flash sale alerts.
+                No spam. Unsubscribe anytime. Get exclusive NFL betting insights and flash sale alerts.
             </p>
         </div>
     </section>
@@ -746,7 +986,7 @@
             <div class="pricing-grid">
                 <div class="pricing-card">
                     <div class="plan-name">Weekly Pass</div>
-                    <div class="plan-desc">Perfect for testing our system</div>
+                    <div class="plan-desc">Perfect for testing our NFL picks system</div>
                     <div class="plan-price">
                         <span class="price-amount">$29</span>
                         <span class="price-period">/week</span>
@@ -754,6 +994,7 @@
                     <ul class="plan-features">
                         <li>3-5 premium NFL picks weekly</li>
                         <li>61% win-rate model backing</li>
+                        <li>NFL picks against the spread</li>
                         <li>Confidence levels included</li>
                         <li>Members-only dashboard access</li>
                         <li>Email & SMS notifications</li>
@@ -763,7 +1004,7 @@
 
                 <div class="pricing-card">
                     <div class="plan-name">Monthly Pass</div>
-                    <div class="plan-desc">Great value for consistent wins</div>
+                    <div class="plan-desc">Great value for consistent NFL betting wins</div>
                     <div class="plan-price">
                         <span class="price-amount">$89</span>
                         <span class="price-period">/month</span>
@@ -771,9 +1012,10 @@
                     <ul class="plan-features">
                         <li>All weekly pass benefits</li>
                         <li>Save $27 vs weekly pricing</li>
-                        <li>Monthly strategy reports</li>
+                        <li>Monthly NFL strategy reports</li>
                         <li>Priority email support</li>
                         <li>Advanced analytics access</li>
+                        <li>NFL betting trends analysis</li>
                     </ul>
                     <button class="plan-button" onclick="openPaymentModal('monthly', 89, 'Monthly Pass')">Go Monthly</button>
                 </div>
@@ -781,17 +1023,18 @@
                 <div class="pricing-card featured">
                     <div class="featured-badge">Best Value</div>
                     <div class="plan-name">Full Season</div>
-                    <div class="plan-desc">Maximum value for serious bettors</div>
+                    <div class="plan-desc">Maximum value for serious NFL bettors</div>
                     <div class="plan-price">
                         <span class="price-amount">$199</span>
                         <span class="price-period">one-time</span>
                     </div>
                     <ul class="plan-features">
-                        <li>Every pick Week 1 to Super Bowl</li>
+                        <li>Every NFL pick Week 1 to Super Bowl</li>
                         <li>Playoffs + Championship picks</li>
                         <li>Save $294 vs weekly pricing</li>
                         <li>Exclusive season-long strategy</li>
                         <li>VIP email support priority</li>
+                        <li>NFL futures betting guidance</li>
                     </ul>
                     <button class="plan-button" onclick="openPaymentModal('season', 199, 'Full Season Pass')">Get Full Season</button>
                 </div>
@@ -802,10 +1045,10 @@
     <section class="about" id="about">
         <div class="about-container">
             <div class="about-content">
-                <h2>BUILT ON A DECADE OF SUCCESS</h2>
-                <p>Our proprietary predictive analytics model has been refined through 10+ years of NFL data analysis. We don't chase trends or rely on hunches.</p>
-                <p>Every pick is backed by sophisticated algorithms that consistently identify value against the spread. Join a community of smart bettors who understand that consistent profits come from disciplined analysis.</p>
-                <p>Our 61% win rate across thousands of documented picks speaks for itself. This isn't luck - it's mathematical edge.</p>
+                <h2>BUILT ON A DECADE OF NFL SUCCESS</h2>
+                <p>Our proprietary NFL predictive analytics model has been refined through 10+ years of comprehensive data analysis. We don't chase trends or rely on hunches - every NFL pick is mathematically driven.</p>
+                <p>Every NFL prediction is backed by sophisticated algorithms that consistently identify value against the spread. Join a growing community of smart bettors who understand that consistent NFL betting profits come from disciplined, data-driven analysis.</p>
+                <p>Our documented 61% win rate across thousands of NFL picks speaks for itself. This isn't luck - it's mathematical edge applied to professional NFL handicapping.</p>
             </div>
             <div class="about-visual"></div>
         </div>
@@ -813,7 +1056,7 @@
 
     <div class="payment-modal" id="paymentModal">
         <div class="modal-content">
-            <button class="close-modal" onclick="closePaymentModal()">&times;</button>
+            <button class="close-modal" onclick="closePaymentModal()" aria-label="Close payment modal">&times;</button>
             <div class="modal-header">
                 <div class="modal-title" id="modalTitle">Weekly Pass</div>
                 <div class="modal-price" id="modalPrice">$29</div>
@@ -861,6 +1104,7 @@
         let currentPackage = null;
         let currentAmount = null;
 
+        // Mobile-first navigation
         window.addEventListener('scroll', () => {
             const header = document.getElementById('header');
             if (window.scrollY > 100) {
@@ -878,9 +1122,17 @@
             document.getElementById('pricing').scrollIntoView({ behavior: 'smooth' });
         }
 
+        // Enhanced form submission with better UX
         document.getElementById('freePickForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('freeEmail').value;
+            const submitBtn = e.target.querySelector('.btn-primary');
+            const originalText = submitBtn.textContent;
+            
+            // Add loading state
+            submitBtn.classList.add('loading');
+            submitBtn.textContent = 'Sending...';
+            submitBtn.disabled = true;
             
             try {
                 const response = await fetch('/api/email/free-pick', {
@@ -892,14 +1144,28 @@
                 const data = await response.json();
                 
                 if (response.ok) {
-                    alert('Success! Check your email for this week\'s free pick.');
+                    submitBtn.textContent = '✅ Success! Check Email';
+                    submitBtn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
                     document.getElementById('freeEmail').value = '';
+                    
+                    // Reset after 3 seconds
+                    setTimeout(() => {
+                        submitBtn.textContent = originalText;
+                        submitBtn.style.background = 'linear-gradient(135deg, #00ff88 0%, #00ccff 100%)';
+                        submitBtn.disabled = false;
+                    }, 3000);
                 } else {
-                    alert(data.error || 'Something went wrong. Please try again.');
+                    throw new Error(data.error || 'Something went wrong');
                 }
             } catch (error) {
-                alert('Network error. Please try again.');
+                submitBtn.textContent = '❌ Error - Try Again';
+                setTimeout(() => {
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                }, 3000);
             }
+            
+            submitBtn.classList.remove('loading');
         });
 
         function openPaymentModal(packageType, amount, packageName) {
@@ -909,12 +1175,33 @@
             document.getElementById('modalTitle').textContent = packageName;
             document.getElementById('modalPrice').textContent = `${amount}`;
             document.getElementById('paymentModal').style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevent background scroll
         }
 
         function closePaymentModal() {
             document.getElementById('paymentModal').style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restore scroll
         }
 
+        // Mobile menu functionality
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+            const navLinks = document.querySelector('.nav-links');
+            if (navLinks.style.display === 'flex') {
+                navLinks.style.display = 'none';
+            } else {
+                navLinks.style.display = 'flex';
+                navLinks.style.flexDirection = 'column';
+                navLinks.style.position = 'absolute';
+                navLinks.style.top = '100%';
+                navLinks.style.left = '0';
+                navLinks.style.right = '0';
+                navLinks.style.background = 'rgba(10, 10, 10, 0.95)';
+                navLinks.style.padding = '2rem';
+                navLinks.style.backdropFilter = 'blur(20px)';
+            }
+        });
+
+        // Enhanced payment processing
         document.getElementById('submit-payment').addEventListener('click', async (event) => {
             event.preventDefault();
             
@@ -926,7 +1213,7 @@
             buttonText.style.display = 'none';
             spinner.style.display = 'inline';
 
-            const userEmail = prompt('Please enter your email address:');
+            const userEmail = prompt('Please enter your email address for your NFL picks:');
             if (!userEmail) {
                 submitButton.disabled = false;
                 buttonText.style.display = 'inline';
@@ -960,8 +1247,23 @@
                 if (error) {
                     document.getElementById('card-errors').textContent = error.message;
                 } else {
-                    alert('Payment successful! Check your email for login details.');
+                    alert('Payment successful! Check your email for NFL picks access and login details.');
                     closePaymentModal();
+                    // Track conversion
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'purchase', {
+                            'transaction_id': Date.now(),
+                            'value': currentAmount,
+                            'currency': 'USD',
+                            'items': [{
+                                'item_id': currentPackage,
+                                'item_name': document.getElementById('modalTitle').textContent,
+                                'category': 'NFL Picks',
+                                'quantity': 1,
+                                'price': currentAmount
+                            }]
+                        });
+                    }
                     window.location.href = '/login';
                 }
             } catch (error) {
@@ -973,12 +1275,64 @@
             spinner.style.display = 'none';
         });
 
+        // Close modal on background click
         window.addEventListener('click', (event) => {
             if (event.target === document.getElementById('paymentModal')) {
                 closePaymentModal();
             }
         });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe feature cards for scroll animations
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.feature-card, .pricing-card').forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(card);
+            });
+        });
+
+        // Performance optimization: Preload critical resources
+        const link1 = document.createElement('link');
+        link1.rel = 'preconnect';
+        link1.href = 'https://fonts.googleapis.com';
+        document.head.appendChild(link1);
+
+        const link2 = document.createElement('link');
+        link2.rel = 'preconnect';
+        link2.href = 'https://js.stripe.com';
+        document.head.appendChild(link2);
     </script>
 </body>
 </html>
+
 
