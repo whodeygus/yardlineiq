@@ -26,6 +26,10 @@ app.get('/privacy-policy.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'privacy-policy.html'));
 });
 
+app.get('/picks.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'picks.html'));
+});
+
 app.get('/login.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
@@ -65,3 +69,4 @@ app.listen(PORT, () => {
     console.log(`🌐 Visit: http://localhost:${PORT}`);
 
 });
+
