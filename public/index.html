@@ -49,8 +49,25 @@
             "name": "YardLineIQ"
         }
     }
-    </script>
+    </script>// Add this to make the email signup checkbox work
+document.addEventListener('DOMContentLoaded', function() {
+    const checkbox = document.getElementById('agreementCheckbox');
+    const submitBtn = document.getElementById('freePickSubmit');
     
+    if (checkbox && submitBtn) {
+        // Enable/disable submit button based on checkbox
+        checkbox.addEventListener('change', function() {
+            if (this.checked) {
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.5';
+            }
+        });
+    }
+});
+    </script>
     <script src="https://js.stripe.com/v3/"></script>
     
     <style>
@@ -1420,6 +1437,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </script>
 </body>
 </html>
+
 
 
 
