@@ -1145,77 +1145,8 @@
     <script>
         // REPLACE THIS WITH YOUR ACTUAL STRIPE PUBLISHABLE KEY
         const stripe = Stripe('pk_live_51Rv8QgAZmmH10g2fFM4mXKPxN2RIEiKdyPMFblwMpGjE82jglj46u2kgr4ketvKkl12VQaW2T4G8mGLLTFMMMC5U00ZLLQ2AVv');
-        const elements = stripe.elements();// Fix the email signup button
-document.addEventListener('DOMContentLoaded', function() {
-    const checkbox = document.getElementById('agreementCheckbox');
-    const submitBtn = document.getElementById('freePickSubmit');
-    
-    if (checkbox && submitBtn) {
-        checkbox.addEventListener('change', function() {
-            submitBtn.disabled = !this.checked;
-            submitBtn.style.opacity = this.checked ? '1' : '0.5';
-        });
-    }
-});
-        
-    // Email signup checkbox logic
-        document.addEventListener('DOMContentLoaded', function() {
-            const checkbox = document.getElementById('agreementCheckbox');
-            const submitBtn = document.getElementById('freePickSubmit');
-            
-            if (checkbox && submitBtn) {
-                checkbox.addEventListener('change', function() {
-                    if (this.checked) {
-                        submitBtn.disabled = false;
-                        submitBtn.style.opacity = '1';
-                    } else {
-                        submitBtn.disabled = true;
-                        submitBtn.style.opacity = '0.5';
-                    }
-                });
-            }
-        });
+        const elements = stripe.elements();
 
-        // Payment agreement logic
-        // Email and payment logic
-document.addEventListener('DOMContentLoaded', function() {
-    // Email signup
-    const emailCheckbox = document.getElementById('agreementCheckbox');
-    const emailButton = document.getElementById('freePickSubmit');
-    
-    if (emailCheckbox && emailButton) {
-        emailCheckbox.addEventListener('change', function() {
-            emailButton.disabled = !this.checked;
-            emailButton.style.opacity = this.checked ? '1' : '0.5';
-        });
-    }
-    
-    // Payment agreements
-    const paymentAgreements = document.querySelectorAll('.payment-agreement');
-    const paymentButton = document.getElementById('submit-payment');
-    
-    function checkPaymentAgreements() {
-        const allChecked = Array.from(paymentAgreements).every(checkbox => checkbox.checked);
-        if (paymentButton) {
-            paymentButton.disabled = !allChecked;
-            paymentButton.style.opacity = allChecked ? '1' : '0.5';
-        }
-    }
-    
-    paymentAgreements.forEach(checkbox => {
-        checkbox.addEventListener('change', checkPaymentAgreements);
-    });
-    
-    checkPaymentAgreements();
-});
-            
-            paymentAgreements.forEach(checkbox => {
-                checkbox.addEventListener('change', checkPaymentAgreements);
-            });
-            
-            checkPaymentAgreements();
-        });
-    
         const cardElement = elements.create('card', {
             style: {
                 base: {
@@ -1256,6 +1187,38 @@ document.addEventListener('DOMContentLoaded', function() {
         function scrollToPricing() {
             document.getElementById('pricing').scrollIntoView({ behavior: 'smooth' });
         }
+
+        // All form logic
+        document.addEventListener('DOMContentLoaded', function() {
+            // Email signup checkbox
+            const emailCheckbox = document.getElementById('agreementCheckbox');
+            const emailButton = document.getElementById('freePickSubmit');
+            
+            if (emailCheckbox && emailButton) {
+                emailCheckbox.addEventListener('change', function() {
+                    emailButton.disabled = !this.checked;
+                    emailButton.style.opacity = this.checked ? '1' : '0.5';
+                });
+            }
+            
+            // Payment agreements
+            const paymentAgreements = document.querySelectorAll('.payment-agreement');
+            const paymentButton = document.getElementById('submit-payment');
+            
+            function checkPaymentAgreements() {
+                const allChecked = Array.from(paymentAgreements).every(checkbox => checkbox.checked);
+                if (paymentButton) {
+                    paymentButton.disabled = !allChecked;
+                    paymentButton.style.opacity = allChecked ? '1' : '0.5';
+                }
+            }
+            
+            paymentAgreements.forEach(checkbox => {
+                checkbox.addEventListener('change', checkPaymentAgreements);
+            });
+            
+            checkPaymentAgreements();
+        });
 
         // Enhanced form submission with better UX
         document.getElementById('freePickForm').addEventListener('submit', async (e) => {
@@ -1310,12 +1273,12 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('modalTitle').textContent = packageName;
             document.getElementById('modalPrice').textContent = `${amount}`;
             document.getElementById('paymentModal').style.display = 'block';
-            document.body.style.overflow = 'hidden'; // Prevent background scroll
+            document.body.style.overflow = 'hidden';
         }
 
         function closePaymentModal() {
             document.getElementById('paymentModal').style.display = 'none';
-            document.body.style.overflow = 'auto'; // Restore scroll
+            document.body.style.overflow = 'auto';
         }
 
         // Mobile menu functionality
@@ -1384,7 +1347,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     alert('Payment successful! Check your email for NFL picks access and login details.');
                     closePaymentModal();
-                    // Track conversion
                     if (typeof gtag !== 'undefined') {
                         gtag('event', 'purchase', {
                             'transaction_id': Date.now(),
@@ -1466,9 +1428,10 @@ document.addEventListener('DOMContentLoaded', function() {
         link2.rel = 'preconnect';
         link2.href = 'https://js.stripe.com';
         document.head.appendChild(link2);
-    </script>
+</script>
 </body>
 </html>
+
 
 
 
