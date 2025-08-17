@@ -1145,7 +1145,18 @@
     <script>
         // REPLACE THIS WITH YOUR ACTUAL STRIPE PUBLISHABLE KEY
         const stripe = Stripe('pk_live_51Rv8QgAZmmH10g2fFM4mXKPxN2RIEiKdyPMFblwMpGjE82jglj46u2kgr4ketvKkl12VQaW2T4G8mGLLTFMMMC5U00ZLLQ2AVv');
-        const elements = stripe.elements();
+        const elements = stripe.elements();// Fix the email signup button
+document.addEventListener('DOMContentLoaded', function() {
+    const checkbox = document.getElementById('agreementCheckbox');
+    const submitBtn = document.getElementById('freePickSubmit');
+    
+    if (checkbox && submitBtn) {
+        checkbox.addEventListener('change', function() {
+            submitBtn.disabled = !this.checked;
+            submitBtn.style.opacity = this.checked ? '1' : '0.5';
+        });
+    }
+});
         
     // Email signup checkbox logic
         document.addEventListener('DOMContentLoaded', function() {
@@ -1438,6 +1449,7 @@
     </script>
 </body>
 </html>
+
 
 
 
