@@ -1177,17 +1177,37 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Payment agreement logic
-        document.addEventListener('DOMContentLoaded', function() {
-            const paymentAgreements = document.querySelectorAll('.payment-agreement');
-            const paymentButton = document.getElementById('submit-payment');
-            
-            function checkPaymentAgreements() {
-                const allChecked = Array.from(paymentAgreements).every(checkbox => checkbox.checked);
-                if (paymentButton) {
-                    paymentButton.disabled = !allChecked;
-                    paymentButton.style.opacity = allChecked ? '1' : '0.5';
-                }
-            }
+        // Email and payment logic
+document.addEventListener('DOMContentLoaded', function() {
+    // Email signup
+    const emailCheckbox = document.getElementById('agreementCheckbox');
+    const emailButton = document.getElementById('freePickSubmit');
+    
+    if (emailCheckbox && emailButton) {
+        emailCheckbox.addEventListener('change', function() {
+            emailButton.disabled = !this.checked;
+            emailButton.style.opacity = this.checked ? '1' : '0.5';
+        });
+    }
+    
+    // Payment agreements
+    const paymentAgreements = document.querySelectorAll('.payment-agreement');
+    const paymentButton = document.getElementById('submit-payment');
+    
+    function checkPaymentAgreements() {
+        const allChecked = Array.from(paymentAgreements).every(checkbox => checkbox.checked);
+        if (paymentButton) {
+            paymentButton.disabled = !allChecked;
+            paymentButton.style.opacity = allChecked ? '1' : '0.5';
+        }
+    }
+    
+    paymentAgreements.forEach(checkbox => {
+        checkbox.addEventListener('change', checkPaymentAgreements);
+    });
+    
+    checkPaymentAgreements();
+});
             
             paymentAgreements.forEach(checkbox => {
                 checkbox.addEventListener('change', checkPaymentAgreements);
@@ -1449,6 +1469,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </script>
 </body>
 </html>
+
 
 
 
