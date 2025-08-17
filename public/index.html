@@ -1088,7 +1088,24 @@
                 <div class="modal-title" id="modalTitle">Weekly Pass</div>
                 <div class="modal-price" id="modalPrice">$29</div>
             </div>
-            
+            // Add this with your other JavaScript code
+document.addEventListener('DOMContentLoaded', function() {
+    const checkbox = document.getElementById('agreementCheckbox');
+    const submitBtn = document.getElementById('freePickSubmit');
+    
+    if (checkbox && submitBtn) {
+        // Enable/disable submit button based on checkbox
+        checkbox.addEventListener('change', function() {
+            if (this.checked) {
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.5';
+            }
+        });
+    }
+});
             <div id="card-element"></div>
             <div id="card-errors" role="alert" style="color: #ff6b6b; margin-top: 1rem;"></div>
             
@@ -1120,7 +1137,26 @@
         // REPLACE THIS WITH YOUR ACTUAL STRIPE PUBLISHABLE KEY
         const stripe = Stripe('pk_live_51Rv8QgAZmmH10g2fFM4mXKPxN2RIEiKdyPMFblwMpGjE82jglj46u2kgr4ketvKkl12VQaW2T4G8mGLLTFMMMC5U00ZLLQ2AVv');
         const elements = stripe.elements();
-
+// Add payment agreement logic - paste this anywhere in your <script> section
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentAgreements = document.querySelectorAll('.payment-agreement');
+    const paymentButton = document.getElementById('submit-payment');
+    
+    function checkPaymentAgreements() {
+        const allChecked = Array.from(paymentAgreements).every(checkbox => checkbox.checked);
+        if (paymentButton) {
+            paymentButton.disabled = !allChecked;
+            paymentButton.style.opacity = allChecked ? '1' : '0.5';
+        }
+    }
+    
+    paymentAgreements.forEach(checkbox => {
+        checkbox.addEventListener('change', checkPaymentAgreements);
+    });
+    
+    // Initial check - disable button by default
+    checkPaymentAgreements();
+});
         const cardElement = elements.create('card', {
             style: {
                 base: {
@@ -1374,6 +1410,7 @@
     </script>
 </body>
 </html>
+
 
 
 
