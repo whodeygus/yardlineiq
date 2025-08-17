@@ -976,7 +976,25 @@
             
             <form class="email-signup-form" id="freePickForm">
                 <input type="email" class="email-input" placeholder="Enter your email address" required id="freeEmail" aria-label="Email address for free NFL pick">
-                <button type="submit" class="btn-primary">Get Free NFL Pick</button>
+               <!-- ADD THIS RIGHT BEFORE YOUR SUBMIT BUTTON -->
+<div style="background: #fef2f2; border: 2px solid #fecaca; border-radius: 8px; padding: 20px; margin: 20px 0; color: #7f1d1d;">
+    <div style="font-weight: bold; margin-bottom: 10px;">⚠️ Important Legal Notice</div>
+    <div style="font-size: 14px; margin-bottom: 15px;">
+        All picks and analysis are for <strong>entertainment purposes only</strong>. Sports betting involves significant risk, and we make no guarantees of success. You are solely responsible for all betting decisions.
+    </div>
+    
+    <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 14px;">
+        <input type="checkbox" id="agreementCheckbox" required style="margin-top: 2px;">
+        <span>
+            I am 18+ and agree to the 
+            <a href="/disclaimer.html" target="_blank" style="color: #dc2626; text-decoration: underline;">Disclaimer</a>. 
+            I understand this is for entertainment only.
+        </span>
+    </label>
+</div>
+
+<!-- Update your submit button to be disabled initially -->
+<button type="submit" class="btn-primary" id="freePickSubmit" disabled style="opacity: 0.5;">Get Free NFL Pick</button> <button type="submit" class="btn-primary">Get Free NFL Pick</button>
             </form>
             
             <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-top: 1rem;">
@@ -1356,6 +1374,7 @@
     </script>
 </body>
 </html>
+
 
 
 
