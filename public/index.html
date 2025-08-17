@@ -51,8 +51,61 @@
         });
 
         function openPaymentModal(packageType, amount, packageName) {
-            alert('Payment system temporarily unavailable. Please email admin@yardlineiq.com to purchase.');
+    currentPackage = packageType;
+    currentAmount = amount;
+    
+    document.getElementById('modalTitle').textContent = packageName;
+    document.getElementById('modalPrice').textContent = `$${amount}`;
+    document.getElementById('paymentModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function closePaymentModal() {
+    document.getElementById('paymentModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+// Add payment logic back
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Stripe only if available
+    if (window.Stripe) {
+        const stripe = Stripe('pk_live_51Rv8QgAZmmH10g2fFM4mXKPxN2RIEiKdyPMFblwMpGjE82jglj46u2kgr4ketvKkl12VQaW2T4G8mGLLTFMMMC5U00ZLLQ2AVv');
+        const elements = stripe.elements();
+        
+        const cardElement = elements.create('card', {
+            style: {
+                base: {
+                    color: '#ffffff',
+                    fontFamily: 'Inter, sans-serif',
+                    fontSmoothing: 'antialiased',
+                    fontSize: '16px',
+                    '::placeholder': { color: 'rgba(255, 255, 255, 0.5)' }
+                },
+                invalid: { color: '#ff6b6b', iconColor: '#ff6b6b' }
+            }
+        });
+        
+        cardElement.mount('#card-element');
+        
+        // Payment agreements
+        const paymentAgreements = document.querySelectorAll('.payment-agreement');
+        const paymentButton = document.getElementById('submit-payment');
+        
+        function checkPaymentAgreements() {
+            const allChecked = Array.from(paymentAgreements).every(checkbox => checkbox.checked);
+            if (paymentButton) {
+                paymentButton.disabled = !allChecked;
+                paymentButton.style.opacity = allChecked ? '1' : '0.5';
+            }
         }
+        
+        paymentAgreements.forEach(checkbox => {
+            checkbox.addEventListener('change', checkPaymentAgreements);
+        });
+        
+        checkPaymentAgreements();
+    }
+});
 
         function closePaymentModal() {
             // Simple close function
@@ -1475,6 +1528,7 @@ const elements = stripe ? stripe.elements() : null;
 </script>
 </body>
 </html>
+
 
 
 
