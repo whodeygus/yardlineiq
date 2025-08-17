@@ -1088,24 +1088,33 @@
                 <div class="modal-title" id="modalTitle">Weekly Pass</div>
                 <div class="modal-price" id="modalPrice">$29</div>
             </div>
-            // Add this with your other JavaScript code
-document.addEventListener('DOMContentLoaded', function() {
-    const checkbox = document.getElementById('agreementCheckbox');
-    const submitBtn = document.getElementById('freePickSubmit');
+            <div style="background: #fef2f2; border: 2px solid #fecaca; border-radius: 8px; padding: 20px; margin: 20px 0;">
+    <div style="color: #dc2626; font-weight: bold; font-size: 18px; margin-bottom: 15px;">
+        ⚠️ Required Legal Agreements
+    </div>
     
-    if (checkbox && submitBtn) {
-        // Enable/disable submit button based on checkbox
-        checkbox.addEventListener('change', function() {
-            if (this.checked) {
-                submitBtn.disabled = false;
-                submitBtn.style.opacity = '1';
-            } else {
-                submitBtn.disabled = true;
-                submitBtn.style.opacity = '0.5';
-            }
-        });
-    }
-});
+    <div style="margin-bottom: 15px;">
+        <label style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; cursor: pointer; font-size: 14px; color: #7f1d1d;">
+            <input type="checkbox" class="payment-agreement" data-type="age" required>
+            <span>I am 18+ and sports betting is legal where I live</span>
+        </label>
+        
+        <label style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; cursor: pointer; font-size: 14px; color: #7f1d1d;">
+            <input type="checkbox" class="payment-agreement" data-type="disclaimer" required>
+            <span>I agree to the <a href="/disclaimer.html" target="_blank" style="color: #dc2626;">Disclaimer</a> and understand this is entertainment only</span>
+        </label>
+        
+        <label style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; cursor: pointer; font-size: 14px; color: #7f1d1d;">
+            <input type="checkbox" class="payment-agreement" data-type="responsibility" required>
+            <span>I take full responsibility for any betting decisions</span>
+        </label>
+        
+        <label style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; cursor: pointer; font-size: 14px; color: #7f1d1d;">
+            <input type="checkbox" class="payment-agreement" data-type="terms" required>
+            <span>I agree to the Terms of Service and refund policy</span>
+        </label>
+    </div>
+</div>
             <div id="card-element"></div>
             <div id="card-errors" role="alert" style="color: #ff6b6b; margin-top: 1rem;"></div>
             
@@ -1124,7 +1133,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <a href="/disclaimer.html" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Disclaimer</a>
         <a href="/terms.html" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Terms</a>
         <a href="/privacy-policy.html" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Privacy</a>
-        <a href="mailto:info@yardlineiq.com" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Contact</a>
+        <a href="mailto:admin@yardlineiq.com" style="color: rgba(255,255,255,0.7); margin: 0 1rem; text-decoration: none;">Contact</a>
     </div>
     
     <div style="margin-top: 1rem;">
@@ -1410,6 +1419,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </script>
 </body>
 </html>
+
 
 
 
