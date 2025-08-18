@@ -30,10 +30,14 @@ app.get('/picks.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'picks.html'));
 });
 
+app.get('/disclaimer.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'disclaimer.html'));
+});
+
 app.get('/login.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
-app.use(express.static('public'));
+
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/yardlineiq')
@@ -69,4 +73,5 @@ app.listen(PORT, () => {
     console.log(`🌐 Visit: http://localhost:${PORT}`);
 
 });
+
 
