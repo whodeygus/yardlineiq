@@ -26,7 +26,7 @@
         }
 
         .header-container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
@@ -53,7 +53,7 @@
         }
 
         .main-content {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 2rem;
         }
@@ -86,8 +86,8 @@
 
         .admin-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 3rem;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2rem;
         }
 
         .panel-card {
@@ -160,19 +160,20 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-left: 1rem;
+            margin-right: 1rem;
+            margin-bottom: 0.5rem;
         }
 
         .btn-secondary:hover {
             background: rgba(255, 255, 255, 0.2);
         }
 
-        .user-list {
+        .data-list {
             max-height: 400px;
             overflow-y: auto;
         }
 
-        .user-item {
+        .list-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -180,19 +181,18 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .user-info {
+        .item-info {
             flex-grow: 1;
         }
 
-        .user-email {
+        .item-email {
             font-weight: 600;
             color: white;
         }
 
-        .user-subscription {
+        .item-date {
             font-size: 0.8rem;
             color: rgba(255, 255, 255, 0.7);
-            text-transform: uppercase;
         }
 
         .success-message, .error-message {
@@ -215,7 +215,20 @@
             color: #ff6b6b;
         }
 
-        @media (max-width: 968px) {
+        .email-count {
+            background: #00ff88;
+            color: #000;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        @media (max-width: 1200px) {
+            .admin-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 768px) {
             .admin-grid { grid-template-columns: 1fr; }
             .main-content { padding: 1rem; }
             .stats-grid { grid-template-columns: 1fr 1fr; }
@@ -245,12 +258,17 @@
                 <div class="stat-label">Total Picks</div>
             </div>
             <div class="stat-card">
+                <div class="stat-number" id="emailSignups">0</div>
+                <div class="stat-label">Email Signups</div>
+            </div>
+            <div class="stat-card">
                 <div class="stat-number" id="winRate">61%</div>
                 <div class="stat-label">Overall Win Rate</div>
             </div>
         </div>
 
         <div class="admin-grid">
+            <!-- Post New Pick Panel -->
             <div class="panel-card">
                 <h2 class="panel-title">Post New Pick</h2>
                 <div class="success-message" id="pickSuccess"></div>
@@ -306,6 +324,7 @@
                 </form>
             </div>
 
+            <!-- User Management Panel -->
             <div class="panel-card">
                 <h2 class="panel-title">User Management</h2>
                 <div class="form-group">
@@ -313,9 +332,24 @@
                     <button class="btn-secondary" onclick="exportUsers()">Export Data</button>
                 </div>
                 
-                <div class="user-list" id="userList">
+                <div class="data-list" id="userList">
                     <div style="text-align: center; padding: 2rem; color: rgba(255,255,255,0.5);">
                         Click "Refresh Users" to load user data
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Signups Panel -->
+            <div class="panel-card">
+                <h2 class="panel-title">Email Signups <span class="email-count" id="emailCount">0</span></h2>
+                <div class="form-group">
+                    <button class="btn-secondary" onclick="loadEmails()">Refresh Emails</button>
+                    <button class="btn-secondary" onclick="exportEmails()">Export Emails</button>
+                </div>
+                
+                <div class="data-list" id="emailList">
+                    <div style="text-align: center; padding: 2rem; color: rgba(255,255,255,0.5);">
+                        Click "Refresh Emails" to load email signups
                     </div>
                 </div>
             </div>
@@ -340,6 +374,14 @@
                     document.getElementById('paidUsers').textContent = stats.paidUsers || 0;
                     document.getElementById('totalPicks').textContent = stats.totalPicks || 0;
                     document.getElementById('winRate').textContent = stats.winRate || '61%';
+                }
+
+                // Load email count
+                const emailResponse = await fetch('/api/email/email-list');
+                const emailData = await emailResponse.json();
+                if (emailResponse.ok) {
+                    document.getElementById('emailSignups').textContent = emailData.total || 0;
+                    document.getElementById('emailCount').textContent = emailData.total || 0;
                 }
             } catch (error) {
                 console.error('Error loading stats:', error);
@@ -390,10 +432,10 @@
                 
                 if (response.ok && users.length > 0) {
                     userList.innerHTML = users.map(user => `
-                        <div class="user-item">
-                            <div class="user-info">
-                                <div class="user-email">${user.email}</div>
-                                <div class="user-subscription">${user.subscription} - Joined ${new Date(user.createdAt).toLocaleDateString()}</div>
+                        <div class="list-item">
+                            <div class="item-info">
+                                <div class="item-email">${user.email}</div>
+                                <div class="item-date">${user.subscription} - Joined ${new Date(user.createdAt).toLocaleDateString()}</div>
                             </div>
                         </div>
                     `).join('');
@@ -405,11 +447,68 @@
             }
         }
 
+        async function loadEmails() {
+            try {
+                const response = await fetch('/api/email/email-list');
+                const data = await response.json();
+                
+                const emailList = document.getElementById('emailList');
+                
+                if (response.ok && data.emails && data.emails.length > 0) {
+                    emailList.innerHTML = data.emails.map(email => `
+                        <div class="list-item">
+                            <div class="item-info">
+                                <div class="item-email">${email.email}</div>
+                                <div class="item-date">Signed up: ${new Date(email.signupDate).toLocaleDateString()} at ${new Date(email.signupDate).toLocaleTimeString()}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                    // Update count
+                    document.getElementById('emailCount').textContent = data.total;
+                    document.getElementById('emailSignups').textContent = data.total;
+                } else {
+                    emailList.innerHTML = '<div style="text-align: center; padding: 2rem; color: rgba(255,255,255,0.5);">No email signups yet</div>';
+                }
+            } catch (error) {
+                document.getElementById('emailList').innerHTML = '<div style="text-align: center; padding: 2rem; color: #ff6b6b;">Error loading emails</div>';
+            }
+        }
+
         function exportUsers() {
             alert('Export functionality would generate a CSV file with user data');
         }
 
+        function exportEmails() {
+            // Create a simple CSV export for emails
+            fetch('/api/email/email-list')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.emails && data.emails.length > 0) {
+                        let csvContent = "Email,Signup Date\n";
+                        data.emails.forEach(email => {
+                            csvContent += `${email.email},${new Date(email.signupDate).toLocaleString()}\n`;
+                        });
+                        
+                        const blob = new Blob([csvContent], { type: 'text/csv' });
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'email-signups.csv';
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                    } else {
+                        alert('No emails to export');
+                    }
+                })
+                .catch(error => {
+                    alert('Error exporting emails');
+                });
+        }
+
+        // Load everything when page loads
         loadStats();
+        loadEmails();
     </script>
 </body>
 </html>
