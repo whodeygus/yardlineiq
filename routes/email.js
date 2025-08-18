@@ -1,58 +1,66 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const router = express.Router();
 
-// Simple email list storage (in production, you could use a proper database collection)
-let emailList = [];
+// Email signup schema - this creates a table in MongoDB to store emails
+const emailSignupSchema = new mongoose.Schema({
+  email: { 
+    type: String, 
+    required: true, 
+    unique: true,
+    lowercase: true 
+  },
+  signupDate: { 
+    type: Date, 
+    default: Date.now 
+  }
+});
 
-// Handle free pick signup - NO EMAIL SENDING
+const EmailSignup = mongoose.model('EmailSignup', emailSignupSchema);
+
+// Handle free pick signup - saves email to database
 router.post('/free-pick', async (req, res) => {
   try {
     const { email } = req.body;
-
-    // Validate email
+    
     if (!email || !email.includes('@')) {
       return res.status(400).json({ error: 'Valid email required' });
     }
 
-    // Add to email list if not already there
-    if (!emailList.includes(email.toLowerCase())) {
-      emailList.push(email.toLowerCase());
-      console.log(`New email added: ${email}`); // For your logs
-      console.log(`Total emails collected: ${emailList.length}`); // Track your list growth
-    }
-
-    // Return success message (NO EMAIL SENDING)
+    // Save email to MongoDB database
+    const newSignup = new EmailSignup({ email: email.toLowerCase() });
+    await newSignup.save();
+    
+    console.log(`New email saved to database: ${email}`);
+    
     res.json({ 
       success: true,
       message: 'You have been successfully registered for this week\'s Free Pick! Email will be sent out prior to the game. Thank you and Good Luck!'
     });
-
   } catch (error) {
-    console.error('Email signup error:', error);
-    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    if (error.code === 11000) {
+      // Email already exists - still show success message
+      res.json({ 
+        success: true,
+        message: 'You have been successfully registered for this week\'s Free Pick! Email will be sent out prior to the game. Thank you and Good Luck!'
+      });
+    } else {
+      console.error('Email signup error:', error);
+      res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    }
   }
 });
 
-// Get email list (for your admin use)
-router.get('/email-list', (req, res) => {
-  res.json({ 
-    emails: emailList,
-    total: emailList.length 
-  });
-});
-
-// Newsletter endpoint (for future use when you want to send emails)
-router.post('/newsletter', async (req, res) => {
+// Get all emails for admin page
+router.get('/email-list', async (req, res) => {
   try {
-    const { subject, content } = req.body;
-
-    // For now, just return success (you can add real email sending later)
+    const emails = await EmailSignup.find().sort({ signupDate: -1 });
     res.json({ 
-      message: `Newsletter would be sent to ${emailList.length} subscribers!`,
-      emails: emailList 
+      emails: emails,
+      total: emails.length 
     });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to send newsletter' });
+    res.status(500).json({ error: 'Failed to fetch emails' });
   }
 });
 
