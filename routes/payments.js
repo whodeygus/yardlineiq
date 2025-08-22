@@ -4,8 +4,8 @@ const User = require('../models/User');
 const nodemailer = require('nodemailer');
 const router = express.Router();
 
-// Email transporter setup
-const transporter = nodemailer.createTransporter({
+// Email transporter setup - FIXED SYNTAX
+const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER, // admin@yardlineiq.com
@@ -90,8 +90,10 @@ router.post('/payment-success', async (req, res) => {
       
       await user.save();
       
-      // Send notification emails
-      await sendNotificationEmails(user, packageType, paymentIntentId);
+      // Send notification emails - only if email is configured
+      if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
+        await sendNotificationEmails(user, packageType, paymentIntentId);
+      }
       
       res.json({ 
         success: true, 
