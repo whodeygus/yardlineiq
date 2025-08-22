@@ -37,6 +37,16 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  // ADD THESE TWO NEW FIELDS:
+  paymentIntentId: {
+    type: String,
+    default: null
+  },
+  purchaseDate: {
+    type: Date,
+    default: null
+  },
+  // END OF NEW FIELDS
   isActive: {
     type: Boolean,
     default: true
