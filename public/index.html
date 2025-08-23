@@ -1222,18 +1222,71 @@
 </footer>
 
     <script>
-        // REPLACE THIS WITH YOUR ACTUAL STRIPE PUBLISHABLE KEY
-        const stripe = window.Stripe ? Stripe('pk_live_51Rv8QgAZmmH10g2fFM4mXKPxN2RIEiKdyPMFblwMpGjE82jglj46u2kgr4ketvKkl12VQaW2T4G8mGLLTFMMMC5U00ZLLQ2AVv') : null;
+        // Stripe initialization
+const stripe = window.Stripe ? Stripe('pk_live_51Rv8QgAZmmH10g2fFM4mXKPxN2RIEiKdyPMFblwMpGjE82jglj46u2kgr4ketvKkl12VQaW2T4G8mGLLTFMMMC5U00ZLLQ2AVv') : null;
 const elements = stripe ? stripe.elements() : null;
 
-        // Updated payment processing JavaScript - replace the existing payment code
+const cardElement = elements.create('card', {
+    style: {
+        base: {
+            color: '#ffffff',
+            fontFamily: 'Inter, sans-serif',
+            fontSmoothing: 'antialiased',
+            fontSize: '16px',
+            '::placeholder': {
+                color: 'rgba(255, 255, 255, 0.5)'
+            }
+        },
+        invalid: {
+            color: '#ff6b6b',
+            iconColor: '#ff6b6b'
+        }
+    }
+});
+
+// Mount card element when modal opens
+function mountCardElement() {
+    if (cardElement) {
+        cardElement.mount('#card-element');
+    }
+}
 
 let currentPackage = null;
 let currentAmount = null;
 let customerInfo = {};
 
+// Mobile-first navigation
+window.addEventListener('scroll', () => {
+    const header = document.getElementById('header');
+    if (window.scrollY > 100) {
+        header.classList.add('scrolled');
+    } else {
+        header.classList.remove('scrolled');
+    }
+});
+
+function scrollToFreePick() {
+    document.getElementById('free-pick').scrollIntoView({ behavior: 'smooth' });
+}
+
+function scrollToPricing() {
+    document.getElementById('pricing').scrollIntoView({ behavior: 'smooth' });
+}
+
 // Customer info validation
 document.addEventListener('DOMContentLoaded', function() {
+    // Email signup checkbox
+    const emailCheckbox = document.getElementById('agreementCheckbox');
+    const emailButton = document.getElementById('freePickSubmit');
+    
+    if (emailCheckbox && emailButton) {
+        emailCheckbox.addEventListener('change', function() {
+            emailButton.disabled = !this.checked;
+            emailButton.style.opacity = this.checked ? '1' : '0.5';
+        });
+    }
+    
+    // Customer info validation
     const nameInput = document.getElementById('customerName');
     const emailInput = document.getElementById('customerEmail');
     const continueButton = document.getElementById('continueToPayment');
@@ -1255,10 +1308,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Payment agreements validation
-    const paymentAgreements = document.querySelectorAll('.payment-agreement');
-    const paymentButton = document.getElementById('submit-payment');
-    
     function checkPaymentAgreements() {
+        const paymentAgreements = document.querySelectorAll('.payment-agreement');
+        const paymentButton = document.getElementById('submit-payment');
         const allChecked = Array.from(paymentAgreements).every(checkbox => checkbox.checked);
         if (paymentButton) {
             paymentButton.disabled = !allChecked;
@@ -1266,9 +1318,60 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    paymentAgreements.forEach(checkbox => {
-        checkbox.addEventListener('change', checkPaymentAgreements);
-    });
+    // Add event listeners to payment agreements when they exist
+    setTimeout(() => {
+        const paymentAgreements = document.querySelectorAll('.payment-agreement');
+        paymentAgreements.forEach(checkbox => {
+            checkbox.addEventListener('change', checkPaymentAgreements);
+        });
+        checkPaymentAgreements();
+    }, 100);
+});
+
+// Enhanced form submission with better UX
+document.getElementById('freePickForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('freeEmail').value;
+    const submitBtn = e.target.querySelector('.btn-primary');
+    const originalText = submitBtn.textContent;
+    
+    // Add loading state
+    submitBtn.classList.add('loading');
+    submitBtn.textContent = 'Sending...';
+    submitBtn.disabled = true;
+    
+    try {
+        const response = await fetch('/api/email/free-pick', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+            submitBtn.textContent = '✅ Success! Check Email';
+            submitBtn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+            document.getElementById('freeEmail').value = '';
+            
+            // Reset after 3 seconds
+            setTimeout(() => {
+                submitBtn.textContent = originalText;
+                submitBtn.style.background = 'linear-gradient(135deg, #00ff88 0%, #00ccff 100%)';
+                submitBtn.disabled = false;
+            }, 3000);
+        } else {
+            throw new Error(data.error || 'Something went wrong');
+        }
+    } catch (error) {
+        submitBtn.textContent = '❌ Error - Try Again';
+        setTimeout(() => {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }, 3000);
+    }
+    
+    submitBtn.classList.remove('loading');
 });
 
 function openPaymentModal(packageType, amount, packageName) {
@@ -1286,6 +1389,9 @@ function openPaymentModal(packageType, amount, packageName) {
     
     document.getElementById('paymentModal').style.display = 'block';
     document.body.style.overflow = 'hidden';
+    
+    // Mount card element after modal is shown
+    setTimeout(mountCardElement, 100);
 }
 
 function showCustomerStep() {
@@ -1317,6 +1423,9 @@ function showPaymentStep() {
     // Show payment step
     document.getElementById('customerInfoStep').style.display = 'none';
     document.getElementById('paymentStep').style.display = 'block';
+    
+    // Re-mount card element if needed
+    setTimeout(mountCardElement, 100);
 }
 
 function closePaymentModal() {
@@ -1330,7 +1439,30 @@ function closePaymentModal() {
     
     // Uncheck all checkboxes
     document.querySelectorAll('.payment-agreement').forEach(cb => cb.checked = false);
+    
+    // Unmount card element
+    if (cardElement) {
+        cardElement.unmount();
+    }
 }
+
+// Mobile menu functionality
+document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+    const navLinks = document.querySelector('.nav-links');
+    if (navLinks.style.display === 'flex') {
+        navLinks.style.display = 'none';
+    } else {
+        navLinks.style.display = 'flex';
+        navLinks.style.flexDirection = 'column';
+        navLinks.style.position = 'absolute';
+        navLinks.style.top = '100%';
+        navLinks.style.left = '0';
+        navLinks.style.right = '0';
+        navLinks.style.background = 'rgba(10, 10, 10, 0.95)';
+        navLinks.style.padding = '2rem';
+        navLinks.style.backdropFilter = 'blur(20px)';
+    }
+});
 
 // Updated payment processing
 document.getElementById('submit-payment').addEventListener('click', async (event) => {
@@ -1353,7 +1485,7 @@ document.getElementById('submit-payment').addEventListener('click', async (event
                 amount: currentAmount,
                 currency: 'usd',
                 packageType: currentPackage,
-                customerInfo: customerInfo // Send customer info
+                customerInfo: customerInfo
             })
         });
 
@@ -1420,9 +1552,67 @@ document.getElementById('submit-payment').addEventListener('click', async (event
     buttonText.style.display = 'inline';
     spinner.style.display = 'none';
 });
+
+// Close modal on background click
+window.addEventListener('click', (event) => {
+    if (event.target === document.getElementById('paymentModal')) {
+        closePaymentModal();
+    }
+});
+
+// Smooth scrolling for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Intersection Observer for scroll animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, observerOptions);
+
+// Observe feature cards for scroll animations
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.feature-card, .pricing-card').forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(card);
+    });
+});
+
+// Performance optimization: Preload critical resources
+const link1 = document.createElement('link');
+link1.rel = 'preconnect';
+link1.href = 'https://fonts.googleapis.com';
+document.head.appendChild(link1);
+
+const link2 = document.createElement('link');
+link2.rel = 'preconnect';
+link2.href = 'https://js.stripe.com';
+document.head.appendChild(link2);
     </script>
 </body>
 </html>
+
 
 
 
