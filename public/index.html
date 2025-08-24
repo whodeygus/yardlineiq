@@ -1443,7 +1443,7 @@ document.getElementById('submit-payment').addEventListener('click', async (event
 
     try {
         // Create payment intent with customer info
-        const response = await fetch('/api/payments/create-payment-intent', {
+        const response = await fetch('/payments/create-payment-intent', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1475,7 +1475,7 @@ document.getElementById('submit-payment').addEventListener('click', async (event
             document.getElementById('card-errors').textContent = error.message;
         } else if (paymentIntent.status === 'succeeded') {
             // Confirm payment in database
-            const confirmResponse = await fetch('/api/payments/payment-success', {
+            const confirmResponse = await fetch('/payments/payment-success', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -1577,6 +1577,7 @@ document.head.appendChild(link2);
     </script>
 </body>
 </html>
+
 
 
 
