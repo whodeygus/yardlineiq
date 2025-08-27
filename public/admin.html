@@ -366,7 +366,7 @@
 
         async function loadStats() {
             try {
-                const response = await fetch('/api/admin/stats');
+                const response = await fetch('/payments/customers');
                 const stats = await response.json();
                 
                 if (response.ok) {
@@ -425,13 +425,13 @@
 
         async function loadUsers() {
             try {
-                const response = await fetch('/api/admin/users');
+                const response = await fetch('/payments/customers');
                 const users = await response.json();
                 
                 const userList = document.getElementById('userList');
                 
-                if (response.ok && users.length > 0) {
-                    userList.innerHTML = users.map(user => `
+               if (response.ok && users.customers && users.customers.length > 0) {
+    userList.innerHTML = users.customers.map(user => `
                         <div class="list-item">
                             <div class="item-info">
                                 <div class="item-email">${user.email}</div>
@@ -512,3 +512,4 @@
     </script>
 </body>
 </html>
+
