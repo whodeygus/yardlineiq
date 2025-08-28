@@ -1,4 +1,3 @@
-// server.js - File-based storage with Stripe payments for YardlineIQ
 // server.js - Complete YardlineIQ server with all functionality
 const express = require('express');
 const fs = require('fs').promises;
@@ -45,7 +44,7 @@ const ADMIN_PASSWORD = 'yardline2025';
 // Routes
 
 // Email signup for free pick
-app.post('/api/email/email-list', async (req, res) => {
+app.post('/api/email/free-pick', async (req, res) => {
   try {
     console.log('Email signup request received:', req.body);
     
@@ -97,20 +96,33 @@ app.post('/api/payments/create-payment-intent', async (req, res) => {
     
     const { amount, packageType, customerInfo } = req.body;
     
-    // For testing, we'll simulate a payment intent
-    // In production, you'd use: const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+    // Create a properly formatted test client secret
+    const timestamp = Date.now();
+    const clientSecret = `pi_test_${timestamp}_secret_${Math.random().toString(36).substring(2)}`;
     
-    const mockPaymentIntent = {
-      id: `pi_test_${Date.now()}`,
-      client_secret: `pi_test_${Date.now()}_secret_test123`,
+    // Store the payment intent info for later verification
+    const paymentIntent = {
+      id: `pi_test_${timestamp}`,
+      client_secret: clientSecret,
       amount: Math.round((amount || 29) * 100),
       currency: 'usd',
-      status: 'requires_payment_method'
+      status: 'requires_payment_method',
+      metadata: {
+        packageType: packageType || 'weekly',
+        customerEmail: customerInfo?.email || '',
+        customerName: customerInfo?.name || ''
+      }
     };
     
+    // Store temporarily for verification
+    if (!global.pendingPayments) {
+      global.pendingPayments = {};
+    }
+    global.pendingPayments[paymentIntent.id] = paymentIntent;
+    
     res.json({
-      clientSecret: mockPaymentIntent.client_secret,
-      paymentIntentId: mockPaymentIntent.id
+      clientSecret: clientSecret,
+      paymentIntentId: paymentIntent.id
     });
     
   } catch (error) {
