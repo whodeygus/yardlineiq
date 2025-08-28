@@ -1,78 +1,225 @@
+// server.js - File-based storage solution for YardlineIQ
 const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const rateLimit = require('express-rate-limit');
+const fs = require('fs').promises;
 const path = require('path');
-require('dotenv').config();
+const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
-});
-
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(limiter);
-// Serve static files from public directory
 app.use(express.static('public'));
 
-// Specific routes for HTML pages
-app.get('/privacy-policy.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'privacy-policy.html'));
-});
+// Data storage paths
+const DATA_DIR = './data';
+const USERS_FILE = path.join(DATA_DIR, 'users.json');
+const PICKS_FILE = path.join(DATA_DIR, 'picks.json');
+const STATS_FILE = path.join(DATA_DIR, 'stats.json');
 
-app.get('/picks.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'picks.html'));
-});
+// Ensure data directory exists
+async function initializeDataFiles() {
+  try {
+    await fs.mkdir(DATA_DIR, { recursive: true });
+    
+    // Initialize files if they don't exist
+    const files = [
+      { path: USERS_FILE, default: [] },
+      { path: PICKS_FILE, default: [] },
+      { path: STATS_FILE, default: { totalUsers: 0, paidSubscribers: 0, totalPicks: 0, emailSignups: 0, winRate: 0 } }
+    ];
+    
+    for (const file of files) {
+      try {
+        await fs.access(file.path);
+      } catch {
+        await fs.writeFile(file.path, JSON.stringify(file.default, null, 2));
+        console.log(`Created ${file.path}`);
+      }
+    }
+  } catch (error) {
+    console.error('Error initializing data files:', error);
+  }
+}
 
-app.get('/disclaimer.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'disclaimer.html'));
-});
+// Helper functions
+async function readJSONFile(filePath) {
+  try {
+    const data = await fs.readFile(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error(`Error reading ${filePath}:`, error);
+    return [];
+  }
+}
 
-app.get('/login.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
-
-
-// MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/yardlineiq')
-  .then(() => console.log('✅ MongoDB Connected'))
-  .catch(err => console.error('❌ MongoDB Error:', err));
+async function writeJSONFile(filePath, data) {
+  try {
+    await fs.writeFile(filePath, JSON.stringify(data, null, 2));
+    return true;
+  } catch (error) {
+    console.error(`Error writing ${filePath}:`, error);
+    return false;
+  }
+}
 
 // Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/payments', require('./routes/payments'));
-app.use('/api/picks', require('./routes/picks'));
-app.use('/api/admin', require('./routes/admin'));
-app.use('/api/email', require('./routes/email'));
 
-// Serve main pages
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// Email signup endpoint
+app.post('/api/email/email-list', async (req, res) => {
+  try {
+    const { email, name } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+    
+    const users = await readJSONFile(USERS_FILE);
+    
+    // Check if email already exists
+    const existingUser = users.find(user => user.email === email);
+    if (existingUser) {
+      return res.status(400).json({ error: 'Email already registered' });
+    }
+    
+    // Add new user
+    const newUser = {
+      id: Date.now().toString(),
+      email,
+      name: name || '',
+      signupDate: new Date().toISOString(),
+      type: 'email_signup'
+    };
+    
+    users.push(newUser);
+    await writeJSONFile(USERS_FILE, users);
+    
+    // Update stats
+    const stats = await readJSONFile(STATS_FILE);
+    stats.totalUsers = users.length;
+    stats.emailSignups = users.filter(u => u.type === 'email_signup').length;
+    await writeJSONFile(STATS_FILE, stats);
+    
+    res.json({ success: true, message: 'Email added successfully' });
+  } catch (error) {
+    console.error('Error adding email:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
-app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+// Get users for admin
+app.get('/api/users', async (req, res) => {
+  try {
+    const users = await readJSONFile(USERS_FILE);
+    res.json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
-app.get('/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+// Get stats for admin dashboard
+app.get('/api/admin/stats', async (req, res) => {
+  try {
+    const stats = await readJSONFile(STATS_FILE);
+    const users = await readJSONFile(USERS_FILE);
+    const picks = await readJSONFile(PICKS_FILE);
+    
+    // Calculate current stats
+    const currentStats = {
+      totalUsers: users.length,
+      paidSubscribers: users.filter(u => u.type === 'paid').length,
+      totalPicks: picks.length,
+      emailSignups: users.filter(u => u.type === 'email_signup').length,
+      overallWinRate: picks.length > 0 ? Math.round((picks.filter(p => p.result === 'win').length / picks.length) * 100) : 61
+    };
+    
+    await writeJSONFile(STATS_FILE, currentStats);
+    res.json(currentStats);
+  } catch (error) {
+    console.error('Error fetching stats:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
+// Post new pick
+app.post('/api/picks', async (req, res) => {
+  try {
+    const { week, game, pick, confidence } = req.body;
+    
+    if (!week || !game || !pick) {
+      return res.status(400).json({ error: 'Week, game, and pick are required' });
+    }
+    
+    const picks = await readJSONFile(PICKS_FILE);
+    
+    const newPick = {
+      id: Date.now().toString(),
+      week,
+      game,
+      pick,
+      confidence: confidence || 0,
+      datePosted: new Date().toISOString(),
+      result: 'pending' // pending, win, loss
+    };
+    
+    picks.push(newPick);
+    await writeJSONFile(PICKS_FILE, picks);
+    
+    res.json({ success: true, message: 'Pick added successfully', pick: newPick });
+  } catch (error) {
+    console.error('Error adding pick:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get picks
+app.get('/api/picks', async (req, res) => {
+  try {
+    const picks = await readJSONFile(PICKS_FILE);
+    res.json(picks);
+  } catch (error) {
+    console.error('Error fetching picks:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Export data endpoints for admin
+app.get('/api/export/users', async (req, res) => {
+  try {
+    const users = await readJSONFile(USERS_FILE);
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', 'attachment; filename=users.json');
+    res.json(users);
+  } catch (error) {
+    console.error('Error exporting users:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Serve admin page
 app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
-app.listen(PORT, () => {
-    console.log(`🚀 YardLineIQ Server running on port ${PORT}`);
-    console.log(`🌐 Visit: http://localhost:${PORT}`);
-
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Catch-all for SPA routing
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
+// Start server
+async function startServer() {
+  await initializeDataFiles();
+  app.listen(PORT, () => {
+    console.log(`YardlineIQ server running on port ${PORT}`);
+    console.log(`Admin panel: http://localhost:${PORT}/admin`);
+  });
+}
 
+startServer().catch(console.error);
