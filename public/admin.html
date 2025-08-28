@@ -3,512 +3,433 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - YardLineIQ</title>
+    <title>YardlineIQ Admin</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: #0a0a0a;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e1e2e 0%, #16213e 100%);
             color: white;
-            line-height: 1.6;
+            min-height: 100vh;
         }
 
         .header {
-            background: rgba(10, 10, 10, 0.95);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 1rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-container {
-            max-width: 1400px;
-            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 2rem;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.3);
         }
 
         .logo {
-            font-size: 1.5rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00ff94;
         }
 
-        .admin-badge {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        .admin-btn {
+            background: #ff6b6b;
             color: white;
             padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .main-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
         }
 
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
             text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .stat-number {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #00ff88;
+            font-size: 3rem;
+            font-weight: bold;
+            color: #00ff94;
             margin-bottom: 0.5rem;
         }
 
         .stat-label {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
+            color: #ccc;
+            font-size: 1.1rem;
         }
 
-        .admin-grid {
+        .content-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 2rem;
-        }
-
-        .panel-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
             padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
-        .panel-title {
-            font-size: 1.8rem;
-            font-weight: 700;
+        .content-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
             margin-bottom: 1.5rem;
-            color: #00ff88;
+            color: #00ff94;
         }
 
         .form-group {
             margin-bottom: 1.5rem;
         }
 
-        .form-label {
+        .form-group label {
             display: block;
             margin-bottom: 0.5rem;
-            color: rgba(255, 255, 255, 0.8);
-            font-weight: 500;
+            color: #ccc;
         }
 
-        .form-input, .form-select, .form-textarea {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 0.75rem;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 8px;
-            color: white;
-            font-size: 0.95rem;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
-            outline: none;
-            border-color: #00ff88;
-        }
-
-        .form-textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
-            color: #000;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
             background: rgba(255, 255, 255, 0.1);
             color: white;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 1rem;
+        }
+
+        .form-group input::placeholder {
+            color: #aaa;
+        }
+
+        .btn {
+            background: #00ff94;
+            color: #1e1e2e;
             padding: 0.75rem 1.5rem;
+            border: none;
             border-radius: 8px;
-            font-weight: 500;
+            font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
             margin-right: 1rem;
             margin-bottom: 0.5rem;
         }
 
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.2);
+        .btn:hover {
+            background: #00cc75;
         }
 
-        .data-list {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .list-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .item-info {
-            flex-grow: 1;
-        }
-
-        .item-email {
-            font-weight: 600;
+        .btn-secondary {
+            background: #666;
             color: white;
         }
 
-        .item-date {
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .success-message, .error-message {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            text-align: center;
-            display: none;
-        }
-
-        .success-message {
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            color: #00ff88;
+        .btn-secondary:hover {
+            background: #777;
         }
 
         .error-message {
-            background: rgba(255, 107, 107, 0.1);
-            border: 1px solid rgba(255, 107, 107, 0.3);
             color: #ff6b6b;
+            text-align: center;
+            padding: 1rem;
         }
 
-        .email-count {
-            background: #00ff88;
-            color: #000;
-            padding: 0.25rem 0.75rem;
-            border-radius: 15px;
+        .success-message {
+            color: #00ff94;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .user-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .user-item {
+            padding: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+        }
+
+        .email-badge {
+            background: #00ff94;
+            color: #1e1e2e;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
             font-size: 0.8rem;
-            font-weight: 700;
-        }
-
-        @media (max-width: 1200px) {
-            .admin-grid { grid-template-columns: 1fr 1fr; }
+            margin-left: 0.5rem;
         }
 
         @media (max-width: 768px) {
-            .admin-grid { grid-template-columns: 1fr; }
-            .main-content { padding: 1rem; }
-            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
         }
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="header-container">
-            <div class="logo">YARDLINEIQ ADMIN</div>
-            <div class="admin-badge">ADMIN ACCESS</div>
+    <div class="header">
+        <div class="logo">YARDLINEIQ ADMIN</div>
+        <button class="admin-btn">ADMIN ACCESS</button>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number" id="totalUsers">0</div>
+            <div class="stat-label">Total Users</div>
         </div>
-    </header>
-
-    <main class="main-content">
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number" id="totalUsers">0</div>
-                <div class="stat-label">Total Users</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="paidUsers">0</div>
-                <div class="stat-label">Paid Subscribers</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="totalPicks">0</div>
-                <div class="stat-label">Total Picks</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="emailSignups">0</div>
-                <div class="stat-label">Email Signups</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="winRate">61%</div>
-                <div class="stat-label">Overall Win Rate</div>
-            </div>
+        <div class="stat-card">
+            <div class="stat-number" id="paidSubscribers">0</div>
+            <div class="stat-label">Paid Subscribers</div>
         </div>
+        <div class="stat-card">
+            <div class="stat-number" id="totalPicks">0</div>
+            <div class="stat-label">Total Picks</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="emailSignups">0</div>
+            <div class="stat-label">Email Signups</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="overallWinRate">61%</div>
+            <div class="stat-label">Overall Win Rate</div>
+        </div>
+    </div>
 
-        <div class="admin-grid">
-            <!-- Post New Pick Panel -->
-            <div class="panel-card">
-                <h2 class="panel-title">Post New Pick</h2>
-                <div class="success-message" id="pickSuccess"></div>
-                <div class="error-message" id="pickError"></div>
-                
-                <form id="pickForm">
-                    <div class="form-group">
-                        <label class="form-label">Week</label>
-                        <input type="number" class="form-input" name="week" min="1" max="22" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Game</label>
-                        <input type="text" class="form-input" name="game" placeholder="Chiefs vs Patriots" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Pick</label>
-                        <input type="text" class="form-input" name="pick" placeholder="Chiefs -3.5" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Confidence Level</label>
-                        <select class="form-select" name="confidence" required>
-                            <option value="">Select Confidence</option>
-                            <option value="Low">Low</option>
-                            <option value="Medium">Medium</option>
-                            <option value="High">High</option>
-                            <option value="Lock">Lock</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Pick Type</label>
-                        <select class="form-select" name="pickType" required>
-                            <option value="">Select Type</option>
-                            <option value="free">Free Pick</option>
-                            <option value="premium">Premium Pick</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Game Time</label>
-                        <input type="datetime-local" class="form-input" name="gameTime" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Analysis (Optional)</label>
-                        <textarea class="form-textarea" name="analysis" placeholder="Brief analysis of the pick..."></textarea>
-                    </div>
-                    
-                    <button type="submit" class="btn-primary">Post Pick</button>
-                </form>
-            </div>
-
-            <!-- User Management Panel -->
-            <div class="panel-card">
-                <h2 class="panel-title">User Management</h2>
+    <div class="content-grid">
+        <div class="content-section">
+            <h2 class="section-title">Post New Pick</h2>
+            <form id="pickForm">
                 <div class="form-group">
-                    <button class="btn-secondary" onclick="loadUsers()">Refresh Users</button>
-                    <button class="btn-secondary" onclick="exportUsers()">Export Data</button>
+                    <label>Week</label>
+                    <input type="text" id="week" placeholder="Week 1" required>
                 </div>
-                
-                <div class="data-list" id="userList">
-                    <div style="text-align: center; padding: 2rem; color: rgba(255,255,255,0.5);">
-                        Click "Refresh Users" to load user data
-                    </div>
-                </div>
-            </div>
-
-            <!-- Email Signups Panel -->
-            <div class="panel-card">
-                <h2 class="panel-title">Email Signups <span class="email-count" id="emailCount">0</span></h2>
                 <div class="form-group">
-                    <button class="btn-secondary" onclick="loadEmails()">Refresh Emails</button>
-                    <button class="btn-secondary" onclick="exportEmails()">Export Emails</button>
+                    <label>Game</label>
+                    <input type="text" id="game" placeholder="Chiefs vs Patriots" required>
                 </div>
-                
-                <div class="data-list" id="emailList">
-                    <div style="text-align: center; padding: 2rem; color: rgba(255,255,255,0.5);">
-                        Click "Refresh Emails" to load email signups
-                    </div>
+                <div class="form-group">
+                    <label>Pick</label>
+                    <input type="text" id="pick" placeholder="Chiefs -3.5" required>
                 </div>
+                <button type="submit" class="btn">Post Pick</button>
+            </form>
+            <div id="pickMessage"></div>
+        </div>
+
+        <div class="content-section">
+            <h2 class="section-title">User Management</h2>
+            <button class="btn" onclick="refreshUsers()">Refresh Users</button>
+            <button class="btn btn-secondary" onclick="exportUsers()">Export Data</button>
+            
+            <div id="usersList">
+                <div class="error-message">Click "Refresh Users" to load data</div>
             </div>
         </div>
-    </main>
+
+        <div class="content-section">
+            <h2 class="section-title">Email Signups <span id="emailCount" class="email-badge">0</span></h2>
+            <button class="btn" onclick="refreshEmails()">Refresh Emails</button>
+            <button class="btn btn-secondary" onclick="exportEmails()">Export Emails</button>
+            
+            <div id="emailsList">
+                <div class="error-message">Click "Refresh Emails" to load data</div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // Simple admin authentication
-        const adminPassword = prompt('Enter admin password:');
-        if (adminPassword !== 'YardLineIQ2024!') {
-            alert('Access denied');
-            window.location.href = '/';
-        }
+        // API base URL
+        const API_BASE = window.location.origin;
 
+        // Load initial stats
         async function loadStats() {
             try {
-                const response = await fetch('/payments/stats');
-                const stats = await response.json();
-                
+                const response = await fetch(`${API_BASE}/api/admin/stats`);
                 if (response.ok) {
+                    const stats = await response.json();
                     document.getElementById('totalUsers').textContent = stats.totalUsers || 0;
-                    document.getElementById('paidUsers').textContent = stats.paidSubscribers || 0;
+                    document.getElementById('paidSubscribers').textContent = stats.paidSubscribers || 0;
                     document.getElementById('totalPicks').textContent = stats.totalPicks || 0;
-                    document.getElementById('winRate').textContent = (stats.winRate || 61) + '%';
-                }
-
-                // Load email count
-                const emailResponse = await fetch('/api/email/email-list');
-                const emailData = await emailResponse.json();
-                if (emailResponse.ok) {
-                    document.getElementById('emailSignups').textContent = emailData.total || 0;
-                    document.getElementById('emailCount').textContent = emailData.total || 0;
+                    document.getElementById('emailSignups').textContent = stats.emailSignups || 0;
+                    document.getElementById('overallWinRate').textContent = `${stats.overallWinRate || 61}%`;
+                    document.getElementById('emailCount').textContent = stats.emailSignups || 0;
                 }
             } catch (error) {
                 console.error('Error loading stats:', error);
             }
         }
 
+        // Post new pick
         document.getElementById('pickForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const formData = new FormData(e.target);
-            const pickData = Object.fromEntries(formData);
-            
-            const successMsg = document.getElementById('pickSuccess');
-            const errorMsg = document.getElementById('pickError');
-            
-            successMsg.style.display = 'none';
-            errorMsg.style.display = 'none';
+            const week = document.getElementById('week').value;
+            const game = document.getElementById('game').value;
+            const pick = document.getElementById('pick').value;
             
             try {
-                const response = await fetch('/api/admin/create-pick', {
+                const response = await fetch(`${API_BASE}/api/picks`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(pickData)
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ week, game, pick })
                 });
                 
                 const result = await response.json();
+                const messageDiv = document.getElementById('pickMessage');
                 
                 if (response.ok) {
-                    successMsg.textContent = 'Pick posted successfully!';
-                    successMsg.style.display = 'block';
-                    e.target.reset();
+                    messageDiv.innerHTML = '<div class="success-message">Pick posted successfully!</div>';
+                    document.getElementById('pickForm').reset();
+                    loadStats(); // Refresh stats
                 } else {
-                    errorMsg.textContent = result.error || 'Failed to post pick';
-                    errorMsg.style.display = 'block';
+                    messageDiv.innerHTML = `<div class="error-message">${result.error || 'Failed to post pick'}</div>`;
                 }
             } catch (error) {
-                errorMsg.textContent = 'Network error. Please try again.';
-                errorMsg.style.display = 'block';
+                document.getElementById('pickMessage').innerHTML = '<div class="error-message">Error posting pick</div>';
+                console.error('Error posting pick:', error);
             }
         });
 
-        async function loadUsers() {
+        // Refresh users
+        async function refreshUsers() {
             try {
-                const response = await fetch('/payments/customers');
-                const users = await response.json();
-                
-                const userList = document.getElementById('userList');
-                
-                if (response.ok && users.customers && users.customers.length > 0) {
-                    userList.innerHTML = users.customers.map(user => `
-                        <div class="list-item">
-                            <div class="item-info">
-                                <div class="item-email">${user.email}</div>
-                                <div class="item-date">${user.packageType} - Purchased ${new Date(user.purchaseDate).toLocaleDateString()}</div>
-                            </div>
-                        </div>
-                    `).join('');
-                } else {
-                    userList.innerHTML = '<div style="text-align: center; padding: 2rem; color: rgba(255,255,255,0.5);">No users found</div>';
-                }
-            } catch (error) {
-                document.getElementById('userList').innerHTML = '<div style="text-align: center; padding: 2rem; color: #ff6b6b;">Error loading users</div>';
-            }
-        }
-
-        async function loadEmails() {
-            try {
-                const response = await fetch('/api/email/email-list');
-                const data = await response.json();
-                
-                const emailList = document.getElementById('emailList');
-                
-                if (response.ok && data.emails && data.emails.length > 0) {
-                    emailList.innerHTML = data.emails.map(email => `
-                        <div class="list-item">
-                            <div class="item-info">
-                                <div class="item-email">${email.email}</div>
-                                <div class="item-date">Signed up: ${new Date(email.signupDate).toLocaleDateString()} at ${new Date(email.signupDate).toLocaleTimeString()}</div>
-                            </div>
-                        </div>
-                    `).join('');
+                const response = await fetch(`${API_BASE}/api/users`);
+                if (response.ok) {
+                    const users = await response.json();
+                    const usersList = document.getElementById('usersList');
                     
-                    // Update count
-                    document.getElementById('emailCount').textContent = data.total;
-                    document.getElementById('emailSignups').textContent = data.total;
+                    if (users.length === 0) {
+                        usersList.innerHTML = '<div class="error-message">No users found</div>';
+                    } else {
+                        usersList.innerHTML = `
+                            <div class="user-list">
+                                ${users.map(user => `
+                                    <div class="user-item">
+                                        <strong>${user.email}</strong>
+                                        ${user.name ? `(${user.name})` : ''}
+                                        <span class="email-badge">${user.type || 'user'}</span>
+                                        <br>
+                                        <small>Signed up: ${new Date(user.signupDate).toLocaleDateString()}</small>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
                 } else {
-                    emailList.innerHTML = '<div style="text-align: center; padding: 2rem; color: rgba(255,255,255,0.5);">No email signups yet</div>';
+                    document.getElementById('usersList').innerHTML = '<div class="error-message">Failed to load users</div>';
                 }
             } catch (error) {
-                document.getElementById('emailList').innerHTML = '<div style="text-align: center; padding: 2rem; color: #ff6b6b;">Error loading emails</div>';
+                document.getElementById('usersList').innerHTML = '<div class="error-message">Error loading users</div>';
+                console.error('Error loading users:', error);
             }
         }
 
-        function exportUsers() {
-            alert('Export functionality would generate a CSV file with user data');
-        }
-
-        function exportEmails() {
-            // Create a simple CSV export for emails
-            fetch('/api/email/email-list')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.emails && data.emails.length > 0) {
-                        let csvContent = "Email,Signup Date\n";
-                        data.emails.forEach(email => {
-                            csvContent += `${email.email},${new Date(email.signupDate).toLocaleString()}\n`;
-                        });
-                        
-                        const blob = new Blob([csvContent], { type: 'text/csv' });
-                        const url = window.URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = 'email-signups.csv';
-                        a.click();
-                        window.URL.revokeObjectURL(url);
+        // Refresh emails (same as users but filtered)
+        async function refreshEmails() {
+            try {
+                const response = await fetch(`${API_BASE}/api/users`);
+                if (response.ok) {
+                    const users = await response.json();
+                    const emailUsers = users.filter(user => user.type === 'email_signup' || !user.type);
+                    const emailsList = document.getElementById('emailsList');
+                    
+                    if (emailUsers.length === 0) {
+                        emailsList.innerHTML = '<div class="error-message">No email signups found</div>';
                     } else {
-                        alert('No emails to export');
+                        emailsList.innerHTML = `
+                            <div class="user-list">
+                                ${emailUsers.map(user => `
+                                    <div class="user-item">
+                                        <strong>${user.email}</strong>
+                                        ${user.name ? `(${user.name})` : ''}
+                                        <br>
+                                        <small>Signed up: ${new Date(user.signupDate).toLocaleDateString()}</small>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
                     }
-                })
-                .catch(error => {
-                    alert('Error exporting emails');
-                });
+                } else {
+                    document.getElementById('emailsList').innerHTML = '<div class="error-message">Failed to load emails</div>';
+                }
+            } catch (error) {
+                document.getElementById('emailsList').innerHTML = '<div class="error-message">Error loading emails</div>';
+                console.error('Error loading emails:', error);
+            }
         }
 
-        // Load everything when page loads
-        loadStats();
-        loadEmails();
+        // Export users
+        async function exportUsers() {
+            try {
+                const response = await fetch(`${API_BASE}/api/export/users`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'yardlineiq-users.json';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                } else {
+                    alert('Failed to export users');
+                }
+            } catch (error) {
+                alert('Error exporting users');
+                console.error('Error exporting users:', error);
+            }
+        }
+
+        // Export emails
+        async function exportEmails() {
+            try {
+                const response = await fetch(`${API_BASE}/api/users`);
+                if (response.ok) {
+                    const users = await response.json();
+                    const emailUsers = users.filter(user => user.type === 'email_signup' || !user.type);
+                    const emailList = emailUsers.map(user => user.email).join('\n');
+                    
+                    const blob = new Blob([emailList], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'yardlineiq-emails.txt';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                } else {
+                    alert('Failed to export emails');
+                }
+            } catch (error) {
+                alert('Error exporting emails');
+                console.error('Error exporting emails:', error);
+            }
+        }
+
+        // Load stats on page load
+        window.addEventListener('load', loadStats);
     </script>
 </body>
 </html>
