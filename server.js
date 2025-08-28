@@ -1,6 +1,7 @@
-// server.js - Debug version that accepts any email format
+// server.js - Live Stripe integration for YardlineIQ
 const express = require('express');
 const cors = require('cors');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -27,32 +28,29 @@ let userData = {
   payments: []
 };
 
-// Debug middleware to log all requests
+// Debug logging
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
-  console.log('Body:', JSON.stringify(req.body, null, 2));
-  console.log('Headers:', req.headers);
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  if (req.body && Object.keys(req.body).length > 0) {
+    console.log('Body:', JSON.stringify(req.body, null, 2));
+  }
   next();
 });
 
-// Multiple email endpoints to catch whatever your frontend is calling
+// Email signup - handle multiple possible endpoints
 app.post('/api/email/free-pick', handleEmailSignup);
 app.post('/api/email/free-pick:1', handleEmailSignup);
 app.post('/api/email/email-list', handleEmailSignup);
-app.post('/api/email/signup', handleEmailSignup);
-app.post('/api/signup', handleEmailSignup);
-app.post('/email/signup', handleEmailSignup);
 
 function handleEmailSignup(req, res) {
   try {
     console.log('=== EMAIL SIGNUP ATTEMPT ===');
-    console.log('Request body:', req.body);
     
-    // Try to extract email from various possible formats
+    // Extract email from various possible formats
     let email = req.body.email || req.body.Email || req.body.emailAddress;
     let name = req.body.name || req.body.Name || req.body.firstName || '';
     
-    // If email is in a nested object
+    // Check nested objects
     if (!email && req.body.customer) {
       email = req.body.customer.email;
       name = req.body.customer.name || name;
@@ -63,32 +61,27 @@ function handleEmailSignup(req, res) {
       name = req.body.user.name || name;
     }
     
-    console.log('Extracted email:', email);
-    console.log('Extracted name:', name);
+    console.log('Email found:', email);
     
-    if (!email) {
-      console.log('No email found in request');
+    if (!email || !email.includes('@')) {
+      console.log('Invalid email provided');
       return res.status(400).json({ 
-        error: 'Email is required',
+        success: false,
+        error: 'Valid email is required',
         received: req.body 
       });
     }
     
-    if (!email.includes('@')) {
-      return res.status(400).json({ error: 'Valid email is required' });
-    }
-    
-    // Check if email already exists
+    // Check if already exists
     const existingUser = userData.users.find(user => 
       user.email.toLowerCase() === email.toLowerCase()
     );
     
     if (existingUser) {
-      console.log('Email already exists:', email);
+      console.log('Email already exists');
       return res.json({ 
         success: true, 
-        message: 'You are already signed up for free picks!',
-        alreadyExists: true
+        message: 'You are already signed up for free picks!'
       });
     }
     
@@ -96,113 +89,118 @@ function handleEmailSignup(req, res) {
     const newUser = {
       id: Date.now().toString(),
       email: email.toLowerCase().trim(),
-      name: name.trim() || '',
+      name: name.trim(),
       signupDate: new Date().toISOString(),
       type: 'email_signup'
     };
     
     userData.users.push(newUser);
     
-    console.log('Email added successfully:', newUser.email);
+    console.log('SUCCESS: Email added -', newUser.email);
     console.log('Total users now:', userData.users.length);
     
     res.json({ 
       success: true, 
       message: 'Successfully signed up for free picks!',
-      user: newUser,
-      totalUsers: userData.users.length
+      redirect: '/thank-you' // If your frontend expects a redirect
     });
     
   } catch (error) {
-    console.error('Error in email signup:', error);
+    console.error('EMAIL SIGNUP ERROR:', error);
     res.status(500).json({ 
-      error: 'Server error - please try again',
-      details: error.message
+      success: false,
+      error: 'Server error - please try again'
     });
   }
 }
 
-// Create payment intent for Stripe
+// Create payment intent with real Stripe
 app.post('/api/payments/create-payment-intent', async (req, res) => {
   try {
-    console.log('=== PAYMENT INTENT REQUEST ===');
-    console.log('Request body:', JSON.stringify(req.body, null, 2));
+    console.log('=== CREATING REAL STRIPE PAYMENT ===');
+    console.log('Request:', JSON.stringify(req.body, null, 2));
     
     const { amount, packageType, customerInfo } = req.body;
     
-    // Create a properly formatted client secret that matches Stripe's format
-    const timestamp = Date.now();
-    const randomString = Math.random().toString(36).substring(2, 15);
-    const clientSecret = `pi_${randomString}_secret_${randomString}`;
-    
-    const paymentIntentId = `pi_${randomString}`;
-    
-    // Store the payment intent for verification
-    if (!global.pendingPayments) {
-      global.pendingPayments = {};
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.log('ERROR: No Stripe secret key found');
+      return res.status(500).json({ error: 'Payment system not configured' });
     }
     
-    global.pendingPayments[paymentIntentId] = {
-      id: paymentIntentId,
-      client_secret: clientSecret,
-      amount: Math.round((amount || 29) * 100),
+    // Create real Stripe payment intent
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round((amount || 29) * 100), // Convert to cents
       currency: 'usd',
-      status: 'requires_payment_method',
-      customerInfo,
-      packageType: packageType || 'weekly'
-    };
+      metadata: {
+        packageType: packageType || 'weekly',
+        customerEmail: customerInfo?.email || '',
+        customerName: customerInfo?.name || ''
+      }
+    });
     
-    console.log('Payment intent created:', paymentIntentId);
+    console.log('Stripe payment intent created:', paymentIntent.id);
     
     res.json({
-      clientSecret: clientSecret,
-      paymentIntentId: paymentIntentId
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id
     });
     
   } catch (error) {
-    console.error('Error creating payment intent:', error);
-    res.status(500).json({ error: 'Payment setup failed' });
+    console.error('STRIPE ERROR:', error);
+    res.status(500).json({ 
+      error: 'Payment setup failed',
+      details: error.message 
+    });
   }
 });
 
-// Handle successful payments
+// Handle payment success with real Stripe verification
 app.post('/api/payments/payment-success', async (req, res) => {
   try {
-    console.log('=== PAYMENT SUCCESS ===');
-    console.log('Request body:', JSON.stringify(req.body, null, 2));
+    console.log('=== VERIFYING STRIPE PAYMENT ===');
     
     const { paymentIntentId, customerInfo, packageType } = req.body;
     
     if (!paymentIntentId) {
-      return res.status(400).json({ error: 'Payment intent ID is required' });
+      return res.status(400).json({ error: 'Payment intent ID required' });
     }
     
-    // For now, accept any payment as successful (since we're in test mode)
+    // Verify with Stripe that payment actually succeeded
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    
+    if (paymentIntent.status !== 'succeeded') {
+      console.log('Payment not successful:', paymentIntent.status);
+      return res.status(400).json({ error: 'Payment was not successful' });
+    }
+    
+    console.log('Stripe payment verified:', paymentIntentId);
+    
+    // Save payment record
     const newPayment = {
       id: Date.now().toString(),
       paymentIntentId,
       customerInfo: customerInfo || {},
       packageType: packageType || 'weekly',
-      amount: 29,
-      currency: 'usd',
+      amount: paymentIntent.amount / 100, // Convert back from cents
+      currency: paymentIntent.currency,
       status: 'completed',
       date: new Date().toISOString()
     };
     
     userData.payments.push(newPayment);
     
-    // Add or update user as paid subscriber
+    // Add user as paid subscriber
     if (customerInfo?.email) {
-      let existingUser = userData.users.find(user => 
-        user.email.toLowerCase() === customerInfo.email.toLowerCase()
+      let user = userData.users.find(u => 
+        u.email.toLowerCase() === customerInfo.email.toLowerCase()
       );
       
-      if (existingUser) {
-        existingUser.type = 'paid';
-        existingUser.packageType = packageType;
-        existingUser.subscriptionDate = new Date().toISOString();
+      if (user) {
+        user.type = 'paid';
+        user.packageType = packageType;
+        user.subscriptionDate = new Date().toISOString();
       } else {
-        const newUser = {
+        userData.users.push({
           id: Date.now().toString(),
           email: customerInfo.email.toLowerCase(),
           name: customerInfo.name || '',
@@ -210,149 +208,98 @@ app.post('/api/payments/payment-success', async (req, res) => {
           type: 'paid',
           packageType,
           subscriptionDate: new Date().toISOString()
-        };
-        userData.users.push(newUser);
+        });
       }
     }
     
     console.log('Payment processed successfully');
-    console.log('Total users:', userData.users.length);
-    console.log('Paid subscribers:', userData.users.filter(u => u.type === 'paid').length);
     
-    res.json({ success: true, message: 'Payment processed successfully' });
+    res.json({ success: true, message: 'Payment successful!' });
     
   } catch (error) {
-    console.error('Error processing payment:', error);
-    res.status(500).json({ error: 'Payment processing failed' });
+    console.error('PAYMENT VERIFICATION ERROR:', error);
+    res.status(500).json({ error: 'Payment verification failed' });
   }
 });
 
-// Get stats for admin dashboard
+// Get stats
 app.get('/api/admin/stats', (req, res) => {
-  try {
-    const stats = {
-      totalUsers: userData.users.length,
-      paidSubscribers: userData.users.filter(u => u.type === 'paid').length,
-      emailSignups: userData.users.filter(u => u.type === 'email_signup').length,
-      totalPicks: userData.picks.length,
-      overallWinRate: userData.picks.length > 0 
-        ? Math.round((userData.picks.filter(p => p.result === 'win').length / userData.picks.length) * 100) 
-        : 61
-    };
-    
-    console.log('Stats requested:', stats);
-    res.json(stats);
-  } catch (error) {
-    console.error('Error fetching stats:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+  const stats = {
+    totalUsers: userData.users.length,
+    paidSubscribers: userData.users.filter(u => u.type === 'paid').length,
+    emailSignups: userData.users.filter(u => u.type === 'email_signup').length,
+    totalPicks: userData.picks.length,
+    overallWinRate: 61
+  };
+  res.json(stats);
 });
 
-// Get users for admin
+// Get users
 app.get('/api/users', (req, res) => {
-  try {
-    console.log('Users requested, total:', userData.users.length);
-    res.json(userData.users);
-  } catch (error) {
-    console.error('Error fetching users:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+  console.log('Users requested - returning', userData.users.length, 'users');
+  res.json(userData.users);
 });
 
-// Post new pick
+// Post picks
 app.post('/api/picks', (req, res) => {
-  try {
-    console.log('=== NEW PICK ===');
-    console.log('Pick data:', req.body);
-    
-    const { week, game, pick, confidence } = req.body;
-    
-    if (!week || !game || !pick) {
-      return res.status(400).json({ error: 'Week, game, and pick are required' });
-    }
-    
-    const newPick = {
-      id: Date.now().toString(),
-      week: week.toString().trim(),
-      game: game.toString().trim(),
-      pick: pick.toString().trim(),
-      confidence: confidence || 0,
-      datePosted: new Date().toISOString(),
-      result: 'pending'
-    };
-    
-    userData.picks.push(newPick);
-    
-    console.log('Pick added successfully:', newPick);
-    
-    res.json({ success: true, message: 'Pick added successfully', pick: newPick });
-  } catch (error) {
-    console.error('Error adding pick:', error);
-    res.status(500).json({ error: 'Internal server error' });
+  const { week, game, pick } = req.body;
+  
+  if (!week || !game || !pick) {
+    return res.status(400).json({ error: 'All fields required' });
   }
+  
+  const newPick = {
+    id: Date.now().toString(),
+    week, game, pick,
+    datePosted: new Date().toISOString(),
+    result: 'pending'
+  };
+  
+  userData.picks.push(newPick);
+  console.log('Pick added:', newPick);
+  
+  res.json({ success: true, pick: newPick });
 });
 
 // Get picks
 app.get('/api/picks', (req, res) => {
-  try {
-    res.json(userData.picks);
-  } catch (error) {
-    console.error('Error fetching picks:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+  res.json(userData.picks);
 });
 
 // Export users
 app.get('/api/export/users', (req, res) => {
-  try {
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Content-Disposition', 'attachment; filename=users.json');
-    res.json(userData.users);
-  } catch (error) {
-    console.error('Error exporting users:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Content-Disposition', 'attachment; filename=users.json');
+  res.json(userData.users);
 });
 
-// Serve admin page
+// Serve pages
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
-// Health check with debug info
 app.get('/health', (req, res) => {
   res.json({ 
-    status: 'OK', 
-    timestamp: new Date().toISOString(),
+    status: 'OK',
     users: userData.users.length,
-    picks: userData.picks.length,
-    payments: userData.payments.length
+    payments: userData.payments.length,
+    stripeConfigured: !!process.env.STRIPE_SECRET_KEY
   });
 });
 
-// Serve main page
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Catch-all
 app.get('*', (req, res) => {
-  console.log('Catch-all route hit:', req.url);
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Error handling
-app.use((err, req, res, next) => {
-  console.error('Unhandled error:', err);
-  res.status(500).json({ error: 'Internal server error', details: err.message });
 });
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`✅ YardlineIQ server running on port ${PORT}`);
-  console.log(`✅ Health check: http://localhost:${PORT}/health`);
-  console.log(`✅ Admin: http://localhost:${PORT}/admin`);
-  console.log(`✅ Initial users: ${userData.users.length}`);
+  console.log(`YardlineIQ server running on port ${PORT}`);
+  console.log('Stripe configured:', !!process.env.STRIPE_SECRET_KEY);
+  console.log('Users loaded:', userData.users.length);
 });
 
 module.exports = app;
