@@ -1,4 +1,5 @@
 const express = require('express');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -16,12 +17,14 @@ app.use((req, res, next) => {
 let users = [{ 
   email: 'gustin.puckett@gmail.com', 
   name: 'Gustin Puckett', 
-  date: new Date().toISOString() 
+  date: new Date().toISOString(),
+  type: 'email_signup'
 }];
+let payments = [];
 
-// Handle ALL possible email endpoints
+// Handle email signups
 app.post('/api/email/*', (req, res) => {
-  console.log('Email signup:', req.body);
+  console.log('Email signup request:', req.body);
   
   const email = req.body.email || req.body.Email;
   const name = req.body.name || req.body.Name || '';
@@ -35,33 +38,119 @@ app.post('/api/email/*', (req, res) => {
     return res.json({ success: true, message: 'Already signed up!' });
   }
   
-  users.push({ email, name, date: new Date().toISOString() });
-  console.log('Added user:', email);
+  users.push({ 
+    email, 
+    name, 
+    date: new Date().toISOString(),
+    type: 'email_signup'
+  });
+  
+  console.log('User added:', email, 'Total users:', users.length);
   
   res.json({ success: true, message: 'Signed up successfully!' });
 });
 
-// Basic payment endpoint (no Stripe integration for now)
-app.post('/api/payments/*', (req, res) => {
-  console.log('Payment request:', req.body);
-  res.json({ 
-    clientSecret: 'pi_test_fake_secret_123',
-    paymentIntentId: 'pi_test_' + Date.now()
-  });
+// Create real Stripe payment intent
+app.post('/api/payments/create-payment-intent', async (req, res) => {
+  try {
+    console.log('Creating payment intent:', req.body);
+    
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.log('No Stripe key found');
+      return res.status(500).json({ error: 'Payment system not configured' });
+    }
+    
+    const { amount, packageType, customerInfo } = req.body;
+    
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round((amount || 29) * 100),
+      currency: 'usd',
+      metadata: {
+        packageType: packageType || 'weekly',
+        customerEmail: customerInfo?.email || '',
+        customerName: customerInfo?.name || ''
+      }
+    });
+    
+    console.log('Stripe payment intent created:', paymentIntent.id);
+    
+    res.json({
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id
+    });
+    
+  } catch (error) {
+    console.error('Stripe error:', error.message);
+    res.status(500).json({ error: 'Payment setup failed: ' + error.message });
+  }
 });
 
-// Admin endpoints
+// Handle payment success
+app.post('/api/payments/payment-success', async (req, res) => {
+  try {
+    const { paymentIntentId, customerInfo, packageType } = req.body;
+    
+    console.log('Payment success for:', paymentIntentId);
+    
+    // Verify with Stripe
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    
+    if (paymentIntent.status !== 'succeeded') {
+      return res.status(400).json({ error: 'Payment not completed' });
+    }
+    
+    // Record payment
+    payments.push({
+      id: paymentIntentId,
+      customerInfo,
+      packageType,
+      amount: paymentIntent.amount / 100,
+      date: new Date().toISOString()
+    });
+    
+    // Update user
+    if (customerInfo?.email) {
+      let user = users.find(u => u.email === customerInfo.email);
+      if (user) {
+        user.type = 'paid';
+        user.packageType = packageType;
+      } else {
+        users.push({
+          email: customerInfo.email,
+          name: customerInfo.name || '',
+          date: new Date().toISOString(),
+          type: 'paid',
+          packageType
+        });
+      }
+    }
+    
+    console.log('Payment processed successfully. Total users:', users.length);
+    
+    res.json({ success: true, message: 'Payment successful!' });
+    
+  } catch (error) {
+    console.error('Payment verification error:', error.message);
+    res.status(500).json({ error: 'Payment verification failed' });
+  }
+});
+
+// Admin stats
 app.get('/api/admin/stats', (req, res) => {
-  res.json({
+  const stats = {
     totalUsers: users.length,
-    emailSignups: users.length,
-    paidSubscribers: 0,
+    emailSignups: users.filter(u => u.type === 'email_signup').length,
+    paidSubscribers: users.filter(u => u.type === 'paid').length,
     totalPicks: 0,
     overallWinRate: 61
-  });
+  };
+  console.log('Stats requested:', stats);
+  res.json(stats);
 });
 
+// Get users
 app.get('/api/users', (req, res) => {
+  console.log('Users requested, returning', users.length, 'users');
   res.json(users);
 });
 
@@ -79,8 +168,9 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log('Server running on port', PORT);
-  console.log('Users:', users.length);
+  console.log('YardlineIQ server running on port', PORT);
+  console.log('Stripe configured:', !!process.env.STRIPE_SECRET_KEY);
+  console.log('Initial users:', users.length);
 });
 
 module.exports = app;
