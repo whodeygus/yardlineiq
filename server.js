@@ -1,8 +1,9 @@
-// server.js - File-based storage solution for YardlineIQ
+// server.js - File-based storage with Stripe payments for YardlineIQ
 const express = require('express');
 const fs = require('fs').promises;
 const path = require('path');
 const cors = require('cors');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,6 +18,7 @@ const DATA_DIR = './data';
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const PICKS_FILE = path.join(DATA_DIR, 'picks.json');
 const STATS_FILE = path.join(DATA_DIR, 'stats.json');
+const PAYMENTS_FILE = path.join(DATA_DIR, 'payments.json');
 
 // Ensure data directory exists
 async function initializeDataFiles() {
@@ -27,7 +29,8 @@ async function initializeDataFiles() {
     const files = [
       { path: USERS_FILE, default: [] },
       { path: PICKS_FILE, default: [] },
-      { path: STATS_FILE, default: { totalUsers: 0, paidSubscribers: 0, totalPicks: 0, emailSignups: 0, winRate: 0 } }
+      { path: STATS_FILE, default: { totalUsers: 0, paidSubscribers: 0, totalPicks: 0, emailSignups: 0, winRate: 0 } },
+      { path: PAYMENTS_FILE, default: [] }
     ];
     
     for (const file of files) {
@@ -104,6 +107,125 @@ app.post('/api/email/email-list', async (req, res) => {
     res.json({ success: true, message: 'Email added successfully' });
   } catch (error) {
     console.error('Error adding email:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Create payment intent for Stripe
+app.post('/api/payments/create-payment-intent', async (req, res) => {
+  try {
+    const { amount, currency = 'usd', packageType, customerInfo } = req.body;
+
+    if (!amount) {
+      return res.status(400).json({ error: 'Amount is required' });
+    }
+
+    // Create payment intent with Stripe
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount * 100), // Convert to cents
+      currency: currency,
+      metadata: {
+        packageType: packageType || 'unknown',
+        customerEmail: customerInfo?.email || '',
+        customerName: customerInfo?.name || ''
+      }
+    });
+
+    res.json({
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id
+    });
+
+  } catch (error) {
+    console.error('Error creating payment intent:', error);
+    res.status(500).json({ error: 'Payment setup failed' });
+  }
+});
+
+// Handle successful payments
+app.post('/api/payments/payment-success', async (req, res) => {
+  try {
+    const { paymentIntentId, customerInfo, packageType } = req.body;
+
+    if (!paymentIntentId) {
+      return res.status(400).json({ error: 'Payment intent ID is required' });
+    }
+
+    // Verify payment with Stripe
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
+    if (paymentIntent.status !== 'succeeded') {
+      return res.status(400).json({ error: 'Payment not successful' });
+    }
+
+    // Save payment record
+    const payments = await readJSONFile(PAYMENTS_FILE);
+    const newPayment = {
+      id: Date.now().toString(),
+      paymentIntentId,
+      customerInfo,
+      packageType,
+      amount: paymentIntent.amount / 100, // Convert back from cents
+      currency: paymentIntent.currency,
+      status: 'completed',
+      date: new Date().toISOString()
+    };
+    
+    payments.push(newPayment);
+    await writeJSONFile(PAYMENTS_FILE, payments);
+
+    // Add or update user as paid subscriber
+    const users = await readJSONFile(USERS_FILE);
+    let existingUser = users.find(user => user.email === customerInfo.email);
+    
+    if (existingUser) {
+      existingUser.type = 'paid';
+      existingUser.packageType = packageType;
+      existingUser.subscriptionDate = new Date().toISOString();
+    } else {
+      const newUser = {
+        id: Date.now().toString(),
+        email: customerInfo.email,
+        name: customerInfo.name || '',
+        signupDate: new Date().toISOString(),
+        type: 'paid',
+        packageType,
+        subscriptionDate: new Date().toISOString()
+      };
+      users.push(newUser);
+    }
+    
+    await writeJSONFile(USERS_FILE, users);
+
+    // Update stats
+    const stats = await readJSONFile(STATS_FILE);
+    stats.totalUsers = users.length;
+    stats.paidSubscribers = users.filter(u => u.type === 'paid').length;
+    stats.emailSignups = users.filter(u => u.type === 'email_signup').length;
+    await writeJSONFile(STATS_FILE, stats);
+
+    res.json({ success: true, message: 'Payment processed successfully' });
+
+  } catch (error) {
+    console.error('Error processing payment success:', error);
+    res.status(500).json({ error: 'Payment processing failed' });
+  }
+});
+
+// Get payment stats for admin
+app.get('/api/payments/stats', async (req, res) => {
+  try {
+    const payments = await readJSONFile(PAYMENTS_FILE);
+    
+    const stats = {
+      totalPayments: payments.length,
+      totalRevenue: payments.reduce((sum, payment) => sum + payment.amount, 0),
+      recentPayments: payments.slice(-10).reverse() // Last 10 payments
+    };
+    
+    res.json(stats);
+  } catch (error) {
+    console.error('Error fetching payment stats:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
