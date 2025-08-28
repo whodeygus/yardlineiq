@@ -1,7 +1,11 @@
 const express = require('express');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Admin password
+const ADMIN_PASSWORD = 'yardline2025';
 
 // Basic middleware
 app.use(express.json());
@@ -21,6 +25,26 @@ let users = [{
   type: 'email_signup'
 }];
 let payments = [];
+
+// Admin authentication
+app.post('/api/admin/login', (req, res) => {
+  const { password } = req.body;
+  if (password === ADMIN_PASSWORD) {
+    res.json({ success: true, token: 'admin-authenticated' });
+  } else {
+    res.status(401).json({ error: 'Invalid password' });
+  }
+});
+
+// Check auth middleware
+function requireAuth(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (authHeader === 'Bearer admin-authenticated') {
+    next();
+  } else {
+    res.status(401).json({ error: 'Unauthorized' });
+  }
+}
 
 // Handle email signups
 app.post('/api/email/*', (req, res) => {
@@ -135,8 +159,8 @@ app.post('/api/payments/payment-success', async (req, res) => {
   }
 });
 
-// Admin stats
-app.get('/api/admin/stats', (req, res) => {
+// Admin stats (protected)
+app.get('/api/admin/stats', requireAuth, (req, res) => {
   const stats = {
     totalUsers: users.length,
     emailSignups: users.filter(u => u.type === 'email_signup').length,
@@ -148,29 +172,57 @@ app.get('/api/admin/stats', (req, res) => {
   res.json(stats);
 });
 
-// Get users
-app.get('/api/users', (req, res) => {
+// Get users (protected)
+app.get('/api/users', requireAuth, (req, res) => {
   console.log('Users requested, returning', users.length, 'users');
   res.json(users);
 });
 
-// Serve pages
-app.get('/admin', (req, res) => {
-  res.sendFile(__dirname + '/public/admin.html');
+// Export users as CSV (protected)
+app.get('/api/export/users', requireAuth, (req, res) => {
+  try {
+    // Create CSV content
+    const csvHeader = 'Email,Name,Date,Type,Package Type\n';
+    const csvRows = users.map(user => {
+      const email = user.email || '';
+      const name = (user.name || '').replace(/,/g, ';'); // Replace commas with semicolons
+      const date = user.date || '';
+      const type = user.type || 'email_signup';
+      const packageType = user.packageType || '';
+      
+      return `"${email}","${name}","${date}","${type}","${packageType}"`;
+    }).join('\n');
+    
+    const csvContent = csvHeader + csvRows;
+    
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=yardlineiq-users.csv');
+    res.send(csvContent);
+  } catch (error) {
+    console.error('Error exporting users:', error);
+    res.status(500).json({ error: 'Export failed' });
+  }
 });
 
+// Serve admin page with authentication
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+// Serve main page
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/index.html');
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.get('*', (req, res) => {
-  res.sendFile(__dirname + '/public/index.html');
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(PORT, () => {
   console.log('YardlineIQ server running on port', PORT);
   console.log('Stripe configured:', !!process.env.STRIPE_SECRET_KEY);
   console.log('Initial users:', users.length);
+  console.log('Admin password:', ADMIN_PASSWORD);
 });
 
 module.exports = app;
