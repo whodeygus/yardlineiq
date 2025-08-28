@@ -366,14 +366,14 @@
 
         async function loadStats() {
             try {
-                const response = await fetch('/payments/customers');
+                const response = await fetch('/payments/stats');
                 const stats = await response.json();
                 
                 if (response.ok) {
                     document.getElementById('totalUsers').textContent = stats.totalUsers || 0;
-                    document.getElementById('paidUsers').textContent = stats.paidUsers || 0;
+                    document.getElementById('paidUsers').textContent = stats.paidSubscribers || 0;
                     document.getElementById('totalPicks').textContent = stats.totalPicks || 0;
-                    document.getElementById('winRate').textContent = stats.winRate || '61%';
+                    document.getElementById('winRate').textContent = (stats.winRate || 61) + '%';
                 }
 
                 // Load email count
@@ -424,61 +424,26 @@
         });
 
         async function loadUsers() {
-            const userList = document.getElementById('userList');
-            
-            // Show loading message
-            userList.innerHTML = '<div style="text-align: center; padding: 2rem; color: rgba(255,255,255,0.5);">Loading users...</div>';
-            
             try {
-                // Make the request
                 const response = await fetch('/payments/customers');
+                const users = await response.json();
                 
-                // Check if the response was successful
-                if (!response.ok) {
-                    userList.innerHTML = '<div style="text-align: center; padding: 2rem; color: #ff6b6b;">Server error: Could not load users</div>';
-                    return;
-                }
+                const userList = document.getElementById('userList');
                 
-                const data = await response.json();
-                
-                // Check if we have customer data in the expected format
-                if (data && data.customers && Array.isArray(data.customers)) {
-                    if (data.customers.length > 0) {
-                        // We have users! Display them
-                        userList.innerHTML = data.customers.map(user => `
-                            <div class="list-item">
-                                <div class="item-info">
-                                    <div class="item-email">${user.email || 'No email'}</div>
-                                    <div class="item-date">${user.subscription || 'No subscription'} - ${user.createdAt ? `Joined ${new Date(user.createdAt).toLocaleDateString()}` : 'No date'}</div>
-                                </div>
+                if (response.ok && users.customers && users.customers.length > 0) {
+                    userList.innerHTML = users.customers.map(user => `
+                        <div class="list-item">
+                            <div class="item-info">
+                                <div class="item-email">${user.email}</div>
+                                <div class="item-date">${user.packageType} - Purchased ${new Date(user.purchaseDate).toLocaleDateString()}</div>
                             </div>
-                        `).join('');
-                    } else {
-                        // No users found
-                        userList.innerHTML = '<div style="text-align: center; padding: 2rem; color: rgba(255,255,255,0.5);">No users found</div>';
-                    }
+                        </div>
+                    `).join('');
                 } else {
-                    // Try alternative format - maybe data is directly an array
-                    if (Array.isArray(data)) {
-                        if (data.length > 0) {
-                            userList.innerHTML = data.map(user => `
-                                <div class="list-item">
-                                    <div class="item-info">
-                                        <div class="item-email">${user.email || 'No email'}</div>
-                                        <div class="item-date">${user.subscription || 'No subscription'} - ${user.createdAt ? `Joined ${new Date(user.createdAt).toLocaleDateString()}` : 'No date'}</div>
-                                    </div>
-                                </div>
-                            `).join('');
-                        } else {
-                            userList.innerHTML = '<div style="text-align: center; padding: 2rem; color: rgba(255,255,255,0.5);">No users found</div>';
-                        }
-                    } else {
-                        userList.innerHTML = '<div style="text-align: center; padding: 2rem; color: #ff6b6b;">Data format error</div>';
-                    }
+                    userList.innerHTML = '<div style="text-align: center; padding: 2rem; color: rgba(255,255,255,0.5);">No users found</div>';
                 }
             } catch (error) {
-                // Handle any errors
-                userList.innerHTML = '<div style="text-align: center; padding: 2rem; color: #ff6b6b;">Error loading users</div>';
+                document.getElementById('userList').innerHTML = '<div style="text-align: center; padding: 2rem; color: #ff6b6b;">Error loading users</div>';
             }
         }
 
@@ -547,4 +512,3 @@
     </script>
 </body>
 </html>
-
