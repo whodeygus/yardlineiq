@@ -25,6 +25,7 @@ let users = [{
   type: 'email_signup'
 }];
 let payments = [];
+let picks = []; // Initialize picks storage
 
 // Admin authentication
 app.post('/api/admin/login', (req, res) => {
@@ -33,6 +34,31 @@ app.post('/api/admin/login', (req, res) => {
     res.json({ success: true, token: 'admin-authenticated' });
   } else {
     res.status(401).json({ error: 'Invalid password' });
+  }
+});
+
+// Member authentication (simple email check)
+app.post('/api/member/login', (req, res) => {
+  const { email } = req.body;
+  
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required' });
+  }
+  
+  const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  
+  if (user) {
+    res.json({ 
+      success: true, 
+      user: {
+        email: user.email,
+        name: user.name,
+        type: user.type,
+        packageType: user.packageType
+      }
+    });
+  } else {
+    res.status(401).json({ error: 'Email not found. Please sign up first.' });
   }
 });
 
@@ -159,13 +185,59 @@ app.post('/api/payments/payment-success', async (req, res) => {
   }
 });
 
+// Post new pick (protected)
+app.post('/api/picks', requireAuth, (req, res) => {
+  try {
+    console.log('Pick submission:', req.body);
+    
+    const { week, game, time, pick, confidence, reasoning } = req.body;
+    
+    if (!week || !game || !pick) {
+      return res.status(400).json({ error: 'Week, game, and pick are required' });
+    }
+    
+    const newPick = {
+      id: Date.now().toString(),
+      week: week.toString().trim(),
+      game: game.toString().trim(),
+      time: time || '',
+      pick: pick.toString().trim(),
+      confidence: confidence || '',
+      reasoning: reasoning || '',
+      datePosted: new Date().toISOString(),
+      result: 'pending'
+    };
+    
+    picks.push(newPick);
+    
+    console.log('Pick added successfully:', newPick);
+    
+    res.json({ success: true, message: 'Pick posted successfully!', pick: newPick });
+    
+  } catch (error) {
+    console.error('Error adding pick:', error);
+    res.status(500).json({ error: 'Failed to post pick' });
+  }
+});
+
+// Get picks for members (public access)
+app.get('/api/picks', (req, res) => {
+  try {
+    console.log('Picks requested, returning', picks.length, 'picks');
+    res.json(picks);
+  } catch (error) {
+    console.error('Error fetching picks:', error);
+    res.status(500).json({ error: 'Failed to fetch picks' });
+  }
+});
+
 // Admin stats (protected)
 app.get('/api/admin/stats', requireAuth, (req, res) => {
   const stats = {
     totalUsers: users.length,
     emailSignups: users.filter(u => u.type === 'email_signup').length,
     paidSubscribers: users.filter(u => u.type === 'paid').length,
-    totalPicks: 0,
+    totalPicks: picks.length,
     overallWinRate: 61
   };
   console.log('Stats requested:', stats);
@@ -181,11 +253,10 @@ app.get('/api/users', requireAuth, (req, res) => {
 // Export users as CSV (protected)
 app.get('/api/export/users', requireAuth, (req, res) => {
   try {
-    // Create CSV content
     const csvHeader = 'Email,Name,Date,Type,Package Type\n';
     const csvRows = users.map(user => {
       const email = user.email || '';
-      const name = (user.name || '').replace(/,/g, ';'); // Replace commas with semicolons
+      const name = (user.name || '').replace(/,/g, ';');
       const date = user.date || '';
       const type = user.type || 'email_signup';
       const packageType = user.packageType || '';
@@ -204,9 +275,14 @@ app.get('/api/export/users', requireAuth, (req, res) => {
   }
 });
 
-// Serve admin page with authentication
+// Serve admin page
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+// Serve picks page for members
+app.get('/picks.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'picks.html'));
 });
 
 // Serve main page
