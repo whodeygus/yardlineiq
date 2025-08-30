@@ -341,7 +341,7 @@
             const loginError = document.getElementById('loginError');
             
             try {
-                const response = await fetch(`${API_BASE}/api/admin/login`, {
+                const response = await fetchWithAuth(`${API_BASE}/api/admin/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ password })
@@ -557,3 +557,4 @@
     </script>
 </body>
 </html>
+
