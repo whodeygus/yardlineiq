@@ -415,7 +415,7 @@
             const pick = document.getElementById('pick').value;
             
             try {
-                const response = await fetch(`${API_BASE}/api/picks`, {
+                const response = await fetchWithAuth(`${API_BASE}/api/picks`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ week, game, pick })
@@ -557,4 +557,5 @@
     </script>
 </body>
 </html>
+
 
