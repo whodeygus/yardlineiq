@@ -1,76 +1,29 @@
 const express = require('express');
-const nodemailer = require('nodemailer');
-const fs = require('fs').promises;
-const path = require('path');
+const mongoose = require('mongoose');
 const router = express.Router();
 
-// Simple email list storage (backup #1)
-let emailList = [];
+// Connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI);
 
-// Email transporter for notifications
-const transporter = nodemailer.createTransporter({
-  service: 'gmail',
-  auth: {
-    user: process.env.NOTIFICATION_EMAIL, // Your Gmail
-    pass: process.env.NOTIFICATION_PASSWORD // Your App Password
+// Email schema
+const emailSchema = new mongoose.Schema({
+  email: {
+    type: String,
+    required: true,
+    lowercase: true,
+    unique: true
+  },
+  signupDate: {
+    type: Date,
+    default: Date.now
+  },
+  source: {
+    type: String,
+    default: 'free-pick'
   }
 });
 
-// File path for permanent storage
-const EMAIL_FILE_PATH = path.join(process.cwd(), 'emails-backup.json');
-
-// Load existing emails from file on startup
-async function loadEmailsFromFile() {
-  try {
-    const data = await fs.readFile(EMAIL_FILE_PATH, 'utf8');
-    const savedEmails = JSON.parse(data);
-    emailList = savedEmails;
-    console.log(`Loaded ${emailList.length} emails from backup file`);
-  } catch (error) {
-    console.log('No existing email backup file found, starting fresh');
-    emailList = [];
-  }
-}
-
-// Save emails to file (backup #2)
-async function saveEmailsToFile() {
-  try {
-    await fs.writeFile(EMAIL_FILE_PATH, JSON.stringify(emailList, null, 2));
-    console.log('Emails saved to backup file');
-  } catch (error) {
-    console.error('Failed to save emails to file:', error);
-  }
-}
-
-// Send notification email (backup #3)
-async function sendNotificationEmail(email) {
-  try {
-    const mailOptions = {
-      from: process.env.NOTIFICATION_EMAIL,
-      to: process.env.NOTIFICATION_EMAIL, // Send to yourself
-      subject: '🚨 NEW YARDLINE IQ SIGNUP!',
-      html: `
-        <h2>New Free Pick Signup!</h2>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
-        <p><strong>Total Signups:</strong> ${emailList.length}</p>
-        
-        <hr>
-        <p style="font-size: 12px; color: #666;">
-          This is an automatic notification from your YardLine IQ website.
-        </p>
-      `
-    };
-    
-    await transporter.sendMail(mailOptions);
-    console.log(`Notification email sent for: ${email}`);
-  } catch (error) {
-    console.error('Failed to send notification email:', error);
-  }
-}
-
-// Load emails on startup
-loadEmailsFromFile();
+const Email = mongoose.model('Email', emailSchema);
 
 // Handle free pick signup
 router.post('/free-pick', async (req, res) => {
@@ -81,26 +34,22 @@ router.post('/free-pick', async (req, res) => {
       return res.status(400).json({ error: 'Valid email required' });
     }
     
-    const emailLower = email.toLowerCase();
-    const existingEmail = emailList.find(e => e.email === emailLower);
+    // Try to save email to MongoDB
+    const newEmail = new Email({
+      email: email.toLowerCase(),
+      source: 'free-pick'
+    });
     
-    if (!existingEmail) {
-      const emailEntry = {
-        email: emailLower,
-        signupDate: new Date().toISOString(),
-        timestamp: Date.now()
-      };
-      
-      // Add to memory (backup #1)
-      emailList.push(emailEntry);
-      
-      // Save to file (backup #2)
-      await saveEmailsToFile();
-      
-      // Send notification email (backup #3)
-      await sendNotificationEmail(emailLower);
-      
-      console.log(`New email added with triple backup: ${email}`);
+    try {
+      await newEmail.save();
+      console.log(`New email saved to MongoDB: ${email}`);
+    } catch (error) {
+      if (error.code === 11000) {
+        // Duplicate email - that's okay, just continue
+        console.log(`Email already exists: ${email}`);
+      } else {
+        console.error('MongoDB save error:', error);
+      }
     }
     
     res.json({ 
@@ -114,28 +63,41 @@ router.post('/free-pick', async (req, res) => {
 });
 
 // Get email list
-router.get('/email-list', (req, res) => {
-  const emailsForDisplay = emailList.map(entry => ({
-    email: entry.email,
-    signupDate: new Date(entry.signupDate)
-  }));
-  
-  res.json({ 
-    emails: emailsForDisplay,
-    total: emailList.length 
-  });
+router.get('/email-list', async (req, res) => {
+  try {
+    const emails = await Email.find({ source: 'free-pick' })
+      .sort({ signupDate: -1 })
+      .select('email signupDate');
+    
+    res.json({ 
+      emails: emails,
+      total: emails.length 
+    });
+  } catch (error) {
+    console.error('Failed to load email list:', error);
+    res.status(500).json({ error: 'Failed to load emails' });
+  }
 });
 
 // Export emails (WITHOUT deleting them)
-router.get('/export-emails', (req, res) => {
-  const csvContent = 'Email,Signup Date\n' + 
-    emailList.map(entry => `${entry.email},${entry.signupDate}`).join('\n');
-  
-  res.setHeader('Content-Type', 'text/csv');
-  res.setHeader('Content-Disposition', 'attachment; filename="yardline-emails.csv"');
-  res.send(csvContent);
-  
-  console.log(`Exported ${emailList.length} emails (kept in system)`);
+router.get('/export-emails', async (req, res) => {
+  try {
+    const emails = await Email.find({ source: 'free-pick' })
+      .sort({ signupDate: -1 })
+      .select('email signupDate');
+    
+    const csvContent = 'Email,Signup Date\n' + 
+      emails.map(entry => `${entry.email},${entry.signupDate.toISOString()}`).join('\n');
+    
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="yardline-emails.csv"');
+    res.send(csvContent);
+    
+    console.log(`Exported ${emails.length} emails (kept in system)`);
+  } catch (error) {
+    console.error('Export error:', error);
+    res.status(500).json({ error: 'Failed to export emails' });
+  }
 });
 
 module.exports = router;
