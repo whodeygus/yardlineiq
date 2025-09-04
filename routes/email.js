@@ -1,6 +1,16 @@
 const express = require('express');
-const { kv } = require('@vercel/kv');
+const { createClient } = require('redis');
 const router = express.Router();
+
+// Create Redis client
+const redis = createClient({
+  url: process.env.REDIS_URL
+});
+
+redis.on('error', (err) => console.log('Redis Client Error', err));
+
+// Connect to Redis
+redis.connect();
 
 // Handle free pick signup
 router.post('/free-pick', async (req, res) => {
@@ -12,24 +22,19 @@ router.post('/free-pick', async (req, res) => {
     }
     
     const emailLower = email.toLowerCase();
-    const timestamp = Date.now();
     const emailEntry = {
       email: emailLower,
       signupDate: new Date().toISOString(),
-      timestamp: timestamp
+      timestamp: Date.now()
     };
     
-    // Store in Vercel KV using email as key
-    await kv.set(`email:${emailLower}`, emailEntry);
+    // Store email data in Redis
+    await redis.set(`email:${emailLower}`, JSON.stringify(emailEntry));
     
-    // Also maintain a list of all email keys for easy retrieval
-    const existingEmails = await kv.get('all_emails') || [];
-    if (!existingEmails.includes(emailLower)) {
-      existingEmails.push(emailLower);
-      await kv.set('all_emails', existingEmails);
-    }
+    // Add to list of all emails
+    await redis.sadd('all_emails', emailLower);
     
-    console.log(`New email saved to Vercel KV: ${email}`);
+    console.log(`New email saved to Redis: ${email}`);
     
     res.json({ 
       success: true,
@@ -44,14 +49,15 @@ router.post('/free-pick', async (req, res) => {
 // Get email list
 router.get('/email-list', async (req, res) => {
   try {
-    const allEmails = await kv.get('all_emails') || [];
+    // Get all email addresses
+    const allEmails = await redis.smembers('all_emails');
     const emailDetails = [];
     
     // Get details for each email
     for (const email of allEmails) {
-      const details = await kv.get(`email:${email}`);
+      const details = await redis.get(`email:${email}`);
       if (details) {
-        emailDetails.push(details);
+        emailDetails.push(JSON.parse(details));
       }
     }
     
@@ -74,14 +80,15 @@ router.get('/email-list', async (req, res) => {
 // Export emails (WITHOUT deleting them)
 router.get('/export-emails', async (req, res) => {
   try {
-    const allEmails = await kv.get('all_emails') || [];
+    // Get all email addresses
+    const allEmails = await redis.smembers('all_emails');
     const emailDetails = [];
     
     // Get details for each email
     for (const email of allEmails) {
-      const details = await kv.get(`email:${email}`);
+      const details = await redis.get(`email:${email}`);
       if (details) {
-        emailDetails.push(details);
+        emailDetails.push(JSON.parse(details));
       }
     }
     
