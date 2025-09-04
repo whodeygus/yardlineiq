@@ -1,29 +1,6 @@
 const express = require('express');
-const mongoose = require('mongoose');
+const { kv } = require('@vercel/kv');
 const router = express.Router();
-
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI);
-
-// Email schema
-const emailSchema = new mongoose.Schema({
-  email: {
-    type: String,
-    required: true,
-    lowercase: true,
-    unique: true
-  },
-  signupDate: {
-    type: Date,
-    default: Date.now
-  },
-  source: {
-    type: String,
-    default: 'free-pick'
-  }
-});
-
-const Email = mongoose.model('Email', emailSchema);
 
 // Handle free pick signup
 router.post('/free-pick', async (req, res) => {
@@ -34,23 +11,25 @@ router.post('/free-pick', async (req, res) => {
       return res.status(400).json({ error: 'Valid email required' });
     }
     
-    // Try to save email to MongoDB
-    const newEmail = new Email({
-      email: email.toLowerCase(),
-      source: 'free-pick'
-    });
+    const emailLower = email.toLowerCase();
+    const timestamp = Date.now();
+    const emailEntry = {
+      email: emailLower,
+      signupDate: new Date().toISOString(),
+      timestamp: timestamp
+    };
     
-    try {
-      await newEmail.save();
-      console.log(`New email saved to MongoDB: ${email}`);
-    } catch (error) {
-      if (error.code === 11000) {
-        // Duplicate email - that's okay, just continue
-        console.log(`Email already exists: ${email}`);
-      } else {
-        console.error('MongoDB save error:', error);
-      }
+    // Store in Vercel KV using email as key
+    await kv.set(`email:${emailLower}`, emailEntry);
+    
+    // Also maintain a list of all email keys for easy retrieval
+    const existingEmails = await kv.get('all_emails') || [];
+    if (!existingEmails.includes(emailLower)) {
+      existingEmails.push(emailLower);
+      await kv.set('all_emails', existingEmails);
     }
+    
+    console.log(`New email saved to Vercel KV: ${email}`);
     
     res.json({ 
       success: true,
@@ -65,13 +44,26 @@ router.post('/free-pick', async (req, res) => {
 // Get email list
 router.get('/email-list', async (req, res) => {
   try {
-    const emails = await Email.find({ source: 'free-pick' })
-      .sort({ signupDate: -1 })
-      .select('email signupDate');
+    const allEmails = await kv.get('all_emails') || [];
+    const emailDetails = [];
+    
+    // Get details for each email
+    for (const email of allEmails) {
+      const details = await kv.get(`email:${email}`);
+      if (details) {
+        emailDetails.push(details);
+      }
+    }
+    
+    // Sort by signup date (newest first)
+    emailDetails.sort((a, b) => new Date(b.signupDate) - new Date(a.signupDate));
     
     res.json({ 
-      emails: emails,
-      total: emails.length 
+      emails: emailDetails.map(entry => ({
+        email: entry.email,
+        signupDate: new Date(entry.signupDate)
+      })),
+      total: emailDetails.length 
     });
   } catch (error) {
     console.error('Failed to load email list:', error);
@@ -82,18 +74,28 @@ router.get('/email-list', async (req, res) => {
 // Export emails (WITHOUT deleting them)
 router.get('/export-emails', async (req, res) => {
   try {
-    const emails = await Email.find({ source: 'free-pick' })
-      .sort({ signupDate: -1 })
-      .select('email signupDate');
+    const allEmails = await kv.get('all_emails') || [];
+    const emailDetails = [];
+    
+    // Get details for each email
+    for (const email of allEmails) {
+      const details = await kv.get(`email:${email}`);
+      if (details) {
+        emailDetails.push(details);
+      }
+    }
+    
+    // Sort by signup date (newest first)
+    emailDetails.sort((a, b) => new Date(b.signupDate) - new Date(a.signupDate));
     
     const csvContent = 'Email,Signup Date\n' + 
-      emails.map(entry => `${entry.email},${entry.signupDate.toISOString()}`).join('\n');
+      emailDetails.map(entry => `${entry.email},${entry.signupDate}`).join('\n');
     
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename="yardline-emails.csv"');
     res.send(csvContent);
     
-    console.log(`Exported ${emails.length} emails (kept in system)`);
+    console.log(`Exported ${emailDetails.length} emails (kept in system)`);
   } catch (error) {
     console.error('Export error:', error);
     res.status(500).json({ error: 'Failed to export emails' });
