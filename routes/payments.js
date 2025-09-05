@@ -1,9 +1,25 @@
 const express = require('express');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const { createClient } = require('redis');
 const router = express.Router();
 
-// Simple in-memory storage for now (will persist until server restart)
-let customers = [];
+// Initialize Redis client
+let redisClient;
+
+async function getRedisClient() {
+  if (!redisClient) {
+    redisClient = createClient({
+      url: process.env.REDIS_URL
+    });
+    
+    redisClient.on('error', (err) => {
+      console.error('Redis Client Error:', err);
+    });
+    
+    await redisClient.connect();
+  }
+  return redisClient;
+}
 
 // Create payment intent - basic version that works
 router.post('/create-payment-intent', async (req, res) => {
@@ -35,7 +51,7 @@ router.post('/create-payment-intent', async (req, res) => {
   }
 });
 
-// Handle successful payment - saves to memory for now
+// Handle successful payment - saves to Redis
 router.post('/payment-success', async (req, res) => {
   try {
     const { paymentIntentId, customerInfo, packageType } = req.body;
@@ -57,8 +73,8 @@ router.post('/payment-success', async (req, res) => {
       } else if (packageType === 'season') {
         subscriptionEnd = new Date('2025-02-15');
       }
-
-      // Save customer to memory
+      
+      // Create customer object
       const customer = {
         id: Date.now(), // Simple ID
         name: customerInfo.name,
@@ -69,14 +85,18 @@ router.post('/payment-success', async (req, res) => {
         paymentId: paymentIntentId,
         status: 'active'
       };
-
-      // Remove any existing customer with same email
-      customers = customers.filter(c => c.email !== customerInfo.email);
-      // Add new customer
-      customers.push(customer);
-
-      console.log('Customer saved:', customer);
-
+      
+      // Save customer to Redis
+      try {
+        const client = await getRedisClient();
+        await client.set(`customer:${customerInfo.email}`, JSON.stringify(customer));
+        await client.sAdd('all_customers', customerInfo.email);
+        console.log('Customer saved to Redis:', customer);
+      } catch (redisError) {
+        console.error('Redis save error:', redisError);
+        // Still send success response even if Redis fails
+      }
+      
       res.json({
         success: true,
         message: 'Payment processed successfully!',
@@ -95,6 +115,17 @@ router.post('/payment-success', async (req, res) => {
 // Get customers for admin dashboard
 router.get('/customers', async (req, res) => {
   try {
+    const client = await getRedisClient();
+    const customerEmails = await client.sMembers('all_customers');
+    const customers = [];
+
+    for (const email of customerEmails) {
+      const customerData = await client.get(`customer:${email}`);
+      if (customerData) {
+        customers.push(JSON.parse(customerData));
+      }
+    }
+
     res.json({ customers: customers.reverse() }); // Show newest first
   } catch (error) {
     console.error('Get customers error:', error);
@@ -105,9 +136,12 @@ router.get('/customers', async (req, res) => {
 // Get dashboard stats
 router.get('/stats', async (req, res) => {
   try {
+    const client = await getRedisClient();
+    const customerCount = await client.sCard('all_customers');
+    
     res.json({
-      totalUsers: customers.length,
-      paidSubscribers: customers.length,
+      totalUsers: customerCount,
+      paidSubscribers: customerCount,
       totalPicks: 0,
       emailSignups: 0,
       winRate: 61
