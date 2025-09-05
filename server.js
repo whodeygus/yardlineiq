@@ -22,7 +22,7 @@ app.use((req, res, next) => {
 });
 
 // Connect Redis-enabled routes
-app.use('/api/emails', emailRoutes.router);
+app.use('/api/email', emailRoutes.router);
 app.use('/api/payments', paymentRoutes);
 
 // Simple storage for picks (can be moved to Redis later if needed)
