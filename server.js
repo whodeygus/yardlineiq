@@ -265,6 +265,14 @@ app.post('/api/payments/payment-success', async (req, res) => {
       if (!result.success) {
         console.error('Failed to save customer to Redis:', result.error);
       }
+
+      // Send notification email
+      await sendNotificationEmail('payment', {
+        name: customerInfo.name,
+        email: customerInfo.email,
+        packageType: packageType,
+        amount: paymentIntent.amount / 100
+      });
       
       res.json({
         success: true,
