@@ -410,32 +410,64 @@ app.get('/api/users', requireAuth, async (req, res) => {
   }
 });
 
-// Export users as CSV - Redis version
+// Export users as CSV - Redis version (enhanced)
 app.get('/api/export/users', requireAuth, async (req, res) => {
   try {
     const emails = await getAllEmailsFromRedis();
     const customers = await getAllCustomersFromRedis();
     const allUsers = [...emails, ...customers];
     
-    const csvHeader = 'Email,Name,Date,Type,Package Type\n';
+    const timestamp = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+    const csvHeader = 'Email,Name,Signup Date,Type,Package Type,Status\n';
     const csvRows = allUsers.map(user => {
       const email = user.email || '';
       const name = (user.name || '').replace(/,/g, ';');
       const date = user.signupDate || user.date || '';
       const type = user.type || 'email_signup';
       const packageType = user.packageType || '';
+      const status = user.status || 'active';
       
-      return `"${email}","${name}","${date}","${type}","${packageType}"`;
+      return `"${email}","${name}","${date}","${type}","${packageType}","${status}"`;
     }).join('\n');
     
     const csvContent = csvHeader + csvRows;
     
     res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', 'attachment; filename=yardlineiq-users.csv');
+    res.setHeader('Content-Disposition', `attachment; filename=yardlineiq-backup-${timestamp}.csv`);
     res.send(csvContent);
+    
+    console.log(`Data export completed: ${allUsers.length} users exported to CSV`);
   } catch (error) {
     console.error('Error exporting users:', error);
     res.status(500).json({ error: 'Export failed' });
+  }
+});
+
+// Export emails only - separate endpoint for email signups specifically
+app.get('/api/export/emails', requireAuth, async (req, res) => {
+  try {
+    const emails = await getAllEmailsFromRedis();
+    
+    const timestamp = new Date().toISOString().split('T')[0];
+    const csvHeader = 'Email,Signup Date,Type\n';
+    const csvRows = emails.map(user => {
+      const email = user.email || '';
+      const date = user.signupDate || user.date || '';
+      const type = user.type || 'free_pick';
+      
+      return `"${email}","${date}","${type}"`;
+    }).join('\n');
+    
+    const csvContent = csvHeader + csvRows;
+    
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename=yardlineiq-emails-${timestamp}.csv`);
+    res.send(csvContent);
+    
+    console.log(`Email export completed: ${emails.length} emails exported to CSV`);
+  } catch (error) {
+    console.error('Error exporting emails:', error);
+    res.status(500).json({ error: 'Email export failed' });
   }
 });
 
