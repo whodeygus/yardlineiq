@@ -823,3 +823,12 @@
         
         // Check if already logged in
         window.addEventListener('load', function() {
+            if (sessionStorage.getItem('loggedIn') === 'true') {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('picksContent').classList.add('visible');
+                document.getElementById('logoutBtn').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
